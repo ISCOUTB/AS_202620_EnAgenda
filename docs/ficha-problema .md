@@ -24,15 +24,15 @@ básico del presupuesto.
 
 El MVP se concentrará en:
 
-- Creación y edición de eventos.
-- Registro de invitados.
-- Enlaces individuales de invitación.
-- Respuestas de asistencia.
-- Gestión básica de tareas.
-- Registro de elementos necesarios.
-- Agenda básica.
-- Presupuesto básico.
-- Panel de seguimiento.
+Creación y edición de eventos.
+Registro de invitados.
+Enlaces individuales de invitación.
+Respuestas de asistencia.
+Gestión básica de tareas.
+Registro de elementos necesarios.
+Agenda básica.
+Presupuesto básico.
+Panel de seguimiento.
 
 ## Fuera del alcance
 
