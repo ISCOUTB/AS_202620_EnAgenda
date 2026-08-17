@@ -18,18 +18,19 @@ navegadores de computador y dispositivos móviles.
 instalar una aplicación. Se evita desarrollar, distribuir y mantener aplicaciones
 nativas separadas.
 
-## R-03. Invitaciones sin cuenta y con vencimiento
+## R-03. Invitaciones sin cuenta, modificables y con vencimiento
 
-El invitado podrá consultar su invitación y registrar o modificar su respuesta sin
-crear una cuenta. Cada evento tendrá una fecha y hora límite de respuesta,
-independiente de la fecha y hora del evento.
+El invitado podrá consultar su invitación y registrar o modificar su respuesta
+sin crear una cuenta mientras el enlace esté vigente. Cada invitación tendrá uno
+de tres estados: `Pendiente`, `Confirmado` o `No asistiré`.
 
-Después de la fecha límite, el enlace individual no permitirá consultar ni modificar
-la invitación.
+La fecha y hora límite de respuesta será independiente de la fecha y hora del
+evento. Después de esa fecha, el enlace no permitirá consultar ni modificar la
+invitación.
 
-**Impacto arquitectónico:** cada invitación requerirá un identificador no predecible
-y el sistema deberá validar en cada acceso su vigencia, la fecha límite y el alcance
-de la invitación antes de mostrar información o aceptar cambios.
+**Impacto arquitectónico:** cada invitación requerirá un identificador no
+predecible, una fecha límite y un estado actual. En cada acceso, el sistema deberá
+validar la vigencia y permitir cambios solo antes del vencimiento.
 
 ## R-04. Privacidad y repositorio público
 
