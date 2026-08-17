@@ -20,12 +20,12 @@ EnAgenda ataca esta problemática de raíz, ofreciendo una plataforma centraliza
 
  ## 1.2 Stakeholders
 
-| Stakeholder | Necesidad e Interés Principal |
-|------------|-------------------------------|
-| Propietario del evento | Mantener el control total de la logística, los gastos y el avance de los preparativos de forma simple y centralizada. |
-| Invitado | Consultar los detalles del evento (fecha, hora, ubicación) y confirmar su asistencia en pocos pasos. |
-| Equipo de desarrollo | Diseñar y construir una solución de software sólida, mantenible y escalable a largo plazo. |
-| Docente evaluador | Validar la correcta implementación de los principios de arquitectura de software y buenas prácticas de ingeniería. |
+| Stakeholder | Rol frente al sistema | Necesidad e interés principal |
+|---|---|---|
+| Propietario del evento | Usuario principal | Crear y administrar eventos, invitados, tareas, agenda, elementos y presupuesto desde un solo lugar. |
+| Invitado | Usuario externo | Consultar la información que le corresponde y confirmar o modificar su asistencia mediante un enlace individual. |
+| Equipo de desarrollo | Interesado técnico | Mantener una solución que pueda construirse, probarse, desplegarse y evolucionarse dentro del tiempo y recursos del curso. |
+| Docente evaluador | Interesado académico | Verificar la trazabilidad entre requisitos, restricciones, decisiones arquitectónicas, código y evidencia. |
 
  ## 1.3 Objetivos del Sistema
 
