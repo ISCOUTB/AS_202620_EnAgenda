@@ -1,5 +1,6 @@
 # C4 - Nivel 2: Contenedores
 
+```mermaid
 C4Container
     title Diagrama de Contenedores - EnAgenda
 
@@ -23,3 +24,4 @@ C4Container
     Rel(webApp, api, "Realiza solicitudes")
     Rel(portalInvitado, api, "Realiza solicitudes")
     Rel(api, database, "Lee y almacena información")
+```
