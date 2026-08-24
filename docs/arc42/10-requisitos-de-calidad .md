@@ -3,30 +3,51 @@
 ## 10.1 Árbol de utilidad
 
 ```text
-Utilidad de EnAgenda
-├── Privacidad y seguridad [Alta]
-│   ├── Un invitado solo puede acceder a la información asociada a su propia invitación
-│   ├── Los enlaces individuales no permiten acceder a información de otros invitados
-│   ├── El enlace deja de estar disponible después de la fecha límite de respuesta
-│   └── Solo el propietario puede administrar la información del evento
+Calidad de EnAgenda
+├── Seguridad y privacidad [Alta]
+│   ├── Confidencialidad de invitaciones
+│   │   └── Un invitado solo puede consultar la información autorizada de su invitación
+│   ├── Autorización por rol y alcance
+│   │   └── El propietario administra sus eventos y el invitado solo puede
+│   │       consultar la información permitida y modificar su propia respuesta
+│   └── Control de acceso temporal
+│       └── Una invitación solo permite consultar y modificar la respuesta
+│           mientras se encuentre vigente
+│
+├── Consistencia e integridad de datos [Alta]
+│   ├── Estado único por invitación
+│   │   └── Cada invitación conserva un único estado vigente
+│   ├── Transiciones válidas
+│   │   └── El estado solo puede cambiar mientras la invitación esté vigente
+│   └── Consistencia del panel
+│       └── Los conteos del panel se calculan a partir del último estado vigente
+│           de cada invitación, sin contar respuestas duplicadas
+│
 ├── Usabilidad [Alta]
-│   ├── El organizador puede crear y compartir un evento desde una aplicación web
-│   ├── El invitado puede responder sin instalar una aplicación ni crear una cuenta
-│   └── El invitado puede cambiar su respuesta antes de la fecha límite
-├── Consistencia [Alta]
-│   ├── Cada invitación conserva un único estado vigente:
-│   │   Pendiente, Confirmado o No asistiré
-│   ├── El invitado puede actualizar su estado antes del vencimiento
-│   └── El panel refleja los conteos correctos según el último estado vigente
+│   ├── Acceso sin cuenta
+│   │   └── El invitado puede responder desde un enlace sin registrarse
+│   ├── Flujo comprensible
+│   │   └── El invitado puede identificar el estado actual de su respuesta y
+│   │       comprender el resultado después de guardarla
+│   └── Facilidad para organizar
+│       └── El organizador puede crear un evento y compartir invitaciones
+│           sin asistencia externa
+│
 ├── Rendimiento [Media]
-│   ├── La consulta de una invitación vigente responde rápidamente
-│   ├── El registro o actualización de una respuesta se procesa rápidamente
-│   └── El panel del evento responde en un tiempo aceptable
+│   ├── Tiempo de respuesta
+│   │   └── Las operaciones principales deben responder dentro de un tiempo
+│   │       definido para mantener una interacción adecuada
+│   └── Capacidad de procesamiento
+│       └── El sistema debe soportar la cantidad de usuarios y operaciones
+│           concurrentes definida para el alcance inicial
+│
 └── Modificabilidad [Media]
-    ├── Las funciones de invitados, tareas, agenda y presupuesto pueden evolucionar
-    │   sin afectar indiscriminadamente las demás funciones
-    └── Las reglas de acceso y vencimiento pueden ajustarse sin reescribir la
-        aplicación completa
+    ├── Cambio de reglas
+    │   └── Las reglas de vigencia pueden modificarse dentro del módulo
+    │       correspondiente sin reescribir toda la aplicación
+    └── Evolución funcional
+        └── Tareas, agenda y presupuesto pueden evolucionar sin modificar
+            innecesariamente la lógica interna de invitaciones y eventos
 ```
 
 ## 10.2 Escenarios de calidad
