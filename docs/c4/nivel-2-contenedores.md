@@ -15,9 +15,9 @@ C4Container
 
         Container(api, "API / Backend", "Tecnología backend", "Procesa las solicitudes, aplica la lógica de negocio y gestiona la información de los eventos.")
 
-    }
-
     ContainerDb(database, "Base de Datos", "Base de datos relacional", "Almacena eventos, invitados, confirmaciones, tareas, elementos, agenda y gastos.")
+
+    }
 
 
     Rel(organizador, webApp, "Utiliza")
