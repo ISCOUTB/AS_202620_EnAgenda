@@ -1,3 +1,3 @@
-# 5. Vista de despliegue 
+# 7. Vista de despliegue 
 
 Esta sección se completará durante el desarrollo del proyecto.
