@@ -1,4 +1,4 @@
-from src.invitaciones.dominio.invitacion import Invitacion
+from src.invitaciones.dominio.invitaciones import Invitacion
 
 
 class RepositorioInvitacionesMemoria:

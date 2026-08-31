@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.invitaciones.dominio.invitacion import (
+from src.invitaciones.dominio.invitaciones import (
     EstadoInvitacion,
     Invitacion
 )

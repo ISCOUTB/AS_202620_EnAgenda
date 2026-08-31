@@ -5,7 +5,7 @@ import pytest
 from src.invitaciones.aplicacion.gestionar_invitacion import (
     GestionarInvitacion
 )
-from src.invitaciones.dominio.invitacion import (
+from src.invitaciones.dominio.invitaciones import (
     EstadoInvitacion
 )
 from src.invitaciones.infraestructura.repositorio_memoria import (
