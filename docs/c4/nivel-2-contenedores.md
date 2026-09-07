@@ -18,4 +18,5 @@ C4Container
 
     Rel(usuario, webApp, "Utiliza", "HTTP")
     Rel(webApp, invitaciones, "Gestiona invitaciones", "Llamada interna")
+    Rel(invitaciones, repositorio, "Guarda y consulta invitaciones", "Llamada interna")
 ```
