@@ -12,10 +12,10 @@ C4Container
 
         Container(invitaciones, "Módulo de Invitaciones", "Python", "Permite crear, consultar y gestionar invitaciones.")
 
-        ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
     }
+
+    ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
 
     Rel(usuario, webApp, "Utiliza", "HTTP")
     Rel(webApp, invitaciones, "Gestiona invitaciones", "Llamada interna")
-    Rel(invitaciones, repositorio, "Guarda y consulta invitaciones", "Llamada interna")
 ```
