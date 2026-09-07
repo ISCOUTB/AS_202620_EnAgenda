@@ -9,20 +9,16 @@ C4Container
 
     System_Boundary(enagenda, "EnAgenda") {
 
-        Container(webApp, "Aplicación Web", "HTML, CSS, JavaScript", "Permite al propietario crear y administrar sus eventos.")
+        Container(webApp, "Aplicación Flask", "Python / Flask", "Recibe las solicitudes HTTP y presenta las funcionalidades de EnAgenda.")
 
-        Container(portalInvitado, "Portal del Invitado", "Web", "Permite al invitado consultar la información del evento y confirmar su asistencia mediante un enlace individual.")
-
-        Container(api, "API / Backend", "Tecnología backend", "Procesa las solicitudes, aplica la lógica de negocio y gestiona la información de los eventos.")
-
-    ContainerDb(database, "Base de Datos", "Base de datos relacional", "Almacena eventos, invitados, confirmaciones, tareas, elementos, agenda y gastos.")
+        Container(invitaciones, "Módulo de Invitaciones", "Python", "Permite crear, consultar y gestionar invitaciones.")
 
     }
-    
-    Rel(organizador, webApp, "Utiliza")
-    Rel(invitado, portalInvitado, "Accede mediante enlace individual")
 
-    Rel(webApp, api, "Realiza solicitudes")
-    Rel(portalInvitado, api, "Realiza solicitudes")
-    Rel(api, database, "Lee y almacena información")
+    ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
+
+    Rel(organizador, webApp, "Utiliza", "HTTP")
+    Rel(invitado, webApp, "Consulta y responde invitaciones", "HTTP")
+    Rel(webApp, invitaciones, "Gestiona invitaciones", "Llamada interna")
+    Rel(invitaciones, repositorio, "Guarda y consulta invitaciones", "Llamada interna")
 ```
