@@ -2,35 +2,40 @@
 
 ```mermaid
 C4Component
-    title Diagrama de Componentes - Aplicación Flask de EnAgenda
 
-    Container_Boundary(webApp, "Aplicación Flask") {
-
-        Component(rutas, "Rutas / Controladores", "Python / Flask", "Recibe y dirige las solicitudes HTTP de organizadores e invitados.")
-
-        Component(servicioInvitaciones, "Servicio de Invitaciones", "Python", "Coordina las operaciones relacionadas con la creación, consulta y gestión de invitaciones.")
-
-        Component(modeloInvitacion, "Modelo de Invitación", "Python", "Representa la información de una invitación y sus datos asociados.")
-
-        Component(respuesta, "Generador de Respuestas", "Python / Flask", "Construye las respuestas que se entregan al organizador o invitado.")
-    }
-
-    Container(invitaciones, "Módulo de Invitaciones", "Python", "Permite crear, consultar y gestionar invitaciones.")
-
-    ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
+    title Diagrama de Componentes - Módulo de Invitaciones
 
     Person(organizador, "Propietario del evento", "Persona encargada de organizar y administrar el evento")
     Person(invitado, "Invitado", "Persona invitada que consulta la información y confirma su asistencia")
 
-    Rel(organizador, rutas, "Crea y administra invitaciones", "HTTP")
-    Rel(invitado, rutas, "Consulta y responde invitaciones", "HTTP")
+    Container(webApp, "Aplicación Flask", "Python / Flask", "Recibe las solicitudes HTTP y presenta las funcionalidades de EnAgenda.")
 
-    Rel(rutas, servicioInvitaciones, "Solicita operaciones de invitaciones", "Llamada interna")
-    Rel(servicioInvitaciones, modeloInvitacion, "Utiliza", "Llamada interna")
-    Rel(servicioInvitaciones, invitaciones, "Gestiona invitaciones", "Llamada interna")
-    Rel(invitaciones, repositorio, "Guarda y consulta invitaciones", "Llamada interna")
-    Rel(servicioInvitaciones, respuesta, "Entrega datos", "Llamada interna")
-    Rel(respuesta, rutas, "Devuelve respuesta HTTP", "Flask")
+    Container_Boundary(invitaciones, "Módulo de Invitaciones") {
+
+        Component(controlador, "Controlador de Invitaciones", "Python", "Recibe las solicitudes relacionadas con las invitaciones.")
+
+        Component(servicio, "Servicio de Invitaciones", "Python", "Gestiona la creación, consulta y respuesta de las invitaciones.")
+
+        Component(modelo, "Modelo de Invitación", "Python", "Representa la información de las invitaciones.")
+
+    }
+
+    ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
+
+    Rel(organizador, webApp, "Administra el evento", "HTTP")
+    Rel(invitado, webApp, "Consulta y responde invitaciones", "HTTP")
+
+    Rel(webApp, controlador, "Envía solicitudes", "Llamada interna")
+
+    Rel(controlador, servicio, "Solicita operaciones", "Llamada interna")
+    Rel(servicio, modelo, "Utiliza", "Llamada interna")
+    Rel(servicio, repositorio, "Guarda y consulta", "Llamada interna")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+
+    UpdateRelStyle(organizador, webApp, $offsetY="-20")
+    UpdateRelStyle(invitado, webApp, $offsetY="-20")
+    UpdateRelStyle(webApp, controlador, $offsetY="-20")
 ```
 
 
