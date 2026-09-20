@@ -1,0 +1,129 @@
+openapi: 3.0.3
+
+info:
+  title: API de Invitaciones - EnAgenda
+  description: API para consultar y responder invitaciones a eventos en EnAgenda.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+    description: Servidor local de EnAgenda
+
+paths:
+  /api/v1/invitaciones/{token}:
+    get:
+      summary: Consultar una invitación
+      description: Obtiene la información de una invitación utilizando su token.
+      operationId: consultarInvitacion
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token único de la invitación.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invitación encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitacion'
+        '404':
+          description: Invitación no encontrada o no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Responder una invitación
+      description: Registra la respuesta del invitado a una invitación.
+      operationId: responderInvitacion
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token único de la invitación.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RespuestaInvitacion'
+      responses:
+        '200':
+          description: Respuesta registrada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitacion'
+        '400':
+          description: Datos de respuesta inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Invitación no encontrada o no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Invitacion:
+      type: object
+      required:
+        - token
+        - destinatario
+        - fecha_limite_respuesta
+        - estado
+      properties:
+        token:
+          type: string
+          description: Token único utilizado para identificar la invitación.
+          example: abc123
+        destinatario:
+          type: string
+          description: Persona que recibe la invitación.
+          example: Juan Pérez
+        fecha_limite_respuesta:
+          type: string
+          format: date-time
+          description: Fecha y hora límite para responder la invitación.
+          example: '2026-09-30T23:59:00'
+        estado:
+          type: string
+          description: Estado actual de la invitación.
+          enum:
+            - Pendiente
+            - Confirmado
+            - No asistiré
+          example: Pendiente
+
+    RespuestaInvitacion:
+      type: object
+      required:
+        - estado
+      properties:
+        estado:
+          type: string
+          description: Respuesta seleccionada por el invitado.
+          enum:
+            - confirmado
+            - no_asistire
+          example: confirmado
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Descripción del error.
+          example: Invitación no encontrada.
