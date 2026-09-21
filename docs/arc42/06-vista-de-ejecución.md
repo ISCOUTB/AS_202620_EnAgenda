@@ -57,6 +57,8 @@ Invitacion actualizada
 La clase `GestionarInvitacion` coordina el caso de uso. El repositorio
 permite recuperar y almacenar la invitación, mientras que la entidad
 `Invitacion` aplica las reglas relacionadas con su vigencia y estado.
+Este flujo se relaciona con la estrategia de integración síncrona definida en el ADR 0002 — Estrategia de integración síncrona para la API, donde se establece el uso de HTTP/JSON para la comunicación con la aplicación.
+
 
 ## 6.4 Correspondencia con el código
 
