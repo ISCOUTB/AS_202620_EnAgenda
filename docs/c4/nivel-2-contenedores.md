@@ -1,3 +1,4 @@
+
 # C4 - Nivel 2: Contenedores
 
 ```mermaid
@@ -17,8 +18,7 @@ C4Container
 
     ContainerDb(repositorio, "Repositorio en memoria", "Python", "Almacena temporalmente las invitaciones durante la ejecución de la aplicación.")
 
-    Rel(organizador, webApp, "Utiliza", "HTTP")
-    Rel(invitado, webApp, "Consulta y responde invitaciones", "HTTP")
+    Rel(organizador, webApp, "Utiliza", "HTTP/JSON")
+    Rel(invitado, webApp, "Consulta y responde invitaciones", "HTTP/JSON")
     Rel(webApp, invitaciones, "Gestiona invitaciones", "Llamada interna")
     Rel(invitaciones, repositorio, "Guarda y consulta invitaciones", "Llamada interna")
-```
