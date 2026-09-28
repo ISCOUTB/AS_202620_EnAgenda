@@ -1,6 +1,11 @@
-
+import json
+import logging
 import os
 import sys
+import time
+import uuid
+from collections import Counter
+from datetime import datetime, timedelta, timezone
 
 # Permite importar el paquete src cuando ejecutamos:
 # python app\web.py
@@ -9,11 +14,20 @@ sys.path.insert(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 
-from datetime import datetime, timedelta
+from flask import (
+    Flask,
+    g,
+    jsonify,
+    redirect,
+    render_template_string,
+    request,
+    send_file,
+    url_for,
+)
 
-from flask import Flask, jsonify, redirect, render_template_string, request, url_for, send_file
-
-from src.invitaciones.aplicacion.gestionar_invitacion import GestionarInvitacion
+from src.invitaciones.aplicacion.gestionar_invitacion import (
+    GestionarInvitacion,
+)
 from src.invitaciones.dominio.invitaciones import EstadoInvitacion
 from src.invitaciones.infraestructura.repositorio_memoria import (
     RepositorioInvitacionesMemoria,
@@ -22,9 +36,101 @@ from src.invitaciones.infraestructura.repositorio_memoria import (
 
 app = Flask(__name__)
 
+# En producción, Render inyecta SECRET_KEY mediante variable de entorno.
+# El valor por defecto permite ejecutar pruebas locales y no debe utilizarse
+# como secreto de producción.
+app.config["SECRET_KEY"] = os.getenv(
+    "SECRET_KEY",
+    "clave-solo-desarrollo-no-usar-en-produccion",
+)
+
+
+logger = logging.getLogger("enagenda")
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO"))
+
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+
+logger.propagate = False
+
+
+metricas = {
+    "http_requests_total": 0,
+    "http_requests_by_path": Counter(),
+    "http_responses_by_status": Counter(),
+}
+
+
+@app.before_request
+def iniciar_solicitud():
+    g.request_id = request.headers.get(
+        "X-Request-ID",
+        str(uuid.uuid4()),
+    )
+    g.request_started_at = time.perf_counter()
+
+
+@app.after_request
+def registrar_solicitud(response):
+    inicio = getattr(g, "request_started_at", None)
+    duracion_ms = None
+
+    if inicio is not None:
+        duracion_ms = round(
+            (time.perf_counter() - inicio) * 1000,
+            2,
+        )
+
+    metricas["http_requests_total"] += 1
+    metricas["http_requests_by_path"][request.path] += 1
+    metricas["http_responses_by_status"][str(response.status_code)] += 1
+
+    logger.info(
+        json.dumps(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "level": "INFO",
+                "event": "http_request",
+                "request_id": g.request_id,
+                "method": request.method,
+                "path": request.path,
+                "status_code": response.status_code,
+                "duration_ms": duracion_ms,
+            }
+        )
+    )
+
+    response.headers["X-Request-ID"] = g.request_id
+    return response
+
+
+@app.get("/health")
+def health():
+    return jsonify(
+        status="ok",
+        service="enagenda-api",
+    ), 200
+
+
+@app.get("/metrics")
+def metrics():
+    return jsonify(
+        http_requests_total=metricas["http_requests_total"],
+        http_requests_by_path=dict(
+            metricas["http_requests_by_path"]
+        ),
+        http_responses_by_status=dict(
+            metricas["http_responses_by_status"]
+        ),
+    ), 200
+
+
 # Repositorio en memoria para la interfaz mínima
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
+
 
 @app.get("/openapi.yaml")
 def obtener_contrato_openapi():
@@ -34,7 +140,12 @@ def obtener_contrato_openapi():
         "api",
         "openapi.yaml",
     )
-    return send_file(ruta_contrato, mimetype="application/yaml")
+
+    return send_file(
+        ruta_contrato,
+        mimetype="application/yaml",
+    )
+
 
 @app.route("/")
 def inicio():
@@ -44,7 +155,12 @@ def inicio():
         fecha_limite_respuesta=datetime.now() + timedelta(days=1),
     )
 
-    return redirect(url_for("ver_invitacion", token=invitacion.token))
+    return redirect(
+        url_for(
+            "ver_invitacion",
+            token=invitacion.token,
+        )
+    )
 
 
 @app.route("/invitacion/<token>", methods=["GET", "POST"])
@@ -147,6 +263,7 @@ def ver_invitacion(token):
         mensaje=mensaje,
     )
 
+
 @app.route("/api/v1/invitaciones/<token>", methods=["GET"])
 def api_consultar_invitacion(token):
     """Consulta una invitación y devuelve sus datos en JSON."""
@@ -175,7 +292,7 @@ def api_consultar_invitacion(token):
 def api_responder_invitacion(token):
     """Registra la respuesta del invitado y devuelve la invitación en JSON."""
     datos = request.get_json(silent=True)
-    
+
     if not isinstance(datos, dict) or "estado" not in datos:
         return jsonify(
             {"error": "Debe proporcionar el campo 'estado'."}
@@ -202,15 +319,18 @@ def api_responder_invitacion(token):
     except ValueError as error:
         return jsonify({"error": str(error)}), 404
 
-    return jsonify({
-        "token": invitacion.token,
-        "destinatario": invitacion.destinatario,
-        "fecha_limite_respuesta":
-               invitacion.fecha_limite_respuesta.isoformat(),
-        "estado": invitacion.estado.value,
-    }), 200
+    return jsonify(
+        {
+            "token": invitacion.token,
+            "destinatario": invitacion.destinatario,
+            "fecha_limite_respuesta": (
+                invitacion.fecha_limite_respuesta.isoformat()
+            ),
+            "estado": invitacion.estado.value,
+        }
+    ), 200
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    port = int(os.getenv("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port)
