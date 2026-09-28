@@ -2,7 +2,15 @@ services:
   enagenda:
     build:
       context: .
+<<<<<<< HEAD
     ports:
       - "5000:5000"
     env_file:
       - .env
+=======
+      dockerfile: Dockerfile
+    ports:
+      - "5000:10000"
+    environment:
+      PORT: 10000
+>>>>>>> 387b4b3a21341cba9b6635151adf980c027e23be

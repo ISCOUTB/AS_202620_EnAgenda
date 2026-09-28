@@ -1,5 +1,6 @@
 .git
 .github
+<<<<<<< HEAD
 .venv
 venv
 __pycache__
@@ -7,3 +8,16 @@ __pycache__
 .env
 docs
 tests
+=======
+.pytest_cache
+.hypothesis
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+!.env.example
+venv
+.venv
+>>>>>>> 387b4b3a21341cba9b6635151adf980c027e23be

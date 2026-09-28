@@ -22,10 +22,11 @@ Requirement already satisfied: pygments>=2.7.2 in C:\Users\Jeimy Mendez A\AppDat
 
 ## Puebas ejecutables desde el terminal
 ```text
+## Pruebas ejecutables desde el terminal
+```text
 PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> pytest -q
-......                                                                                                                              [100%]
-6 passed in 0.16s
-```
+............                                                                 [100%]
+12 passed in 4.11s
 
 ## Ejecucion de Aplicacion
 ```text
@@ -40,6 +41,7 @@ Press CTRL+C to quit
  * Debugger PIN: 144-640-716
  ```
 
+<<<<<<< HEAD
  ## Evidencia de despliegue y observabilidad
 
 > Esta sección se completa con resultados reales después del despliegue en
@@ -55,3 +57,38 @@ Press CTRL+C to quit
 - Costos: [costos.md](despliegue/costos.md).
 - Procedimiento de despliegue: [procedimiento-despliegue.md](despliegue/procedimiento-despliegue.md).
 - Decisión de plataforma: [ADR-0003](adr/0003-desplegar-api-flask-en-render.md).
+=======
+##Verificación de salud de la aplicación
+```text
+PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/health -UseBasicParsing
+
+StatusCode        : 200
+Content           : {
+                      "status": "ok"
+                    }
+```
+
+##Verificación de métricas
+###Consulta inicial:
+```text
+PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/metrics -UseBasicParsing
+
+StatusCode        : 200
+Content           : {
+                      "description": "Total de consultas de invitaciones realizadas",
+                      "metric": "enagenda_invitaciones_consultadas_total",
+                      "value": 0
+                    }
+```
+###Después de consultar una invitación mediante GET /api/v1/invitaciones/<token>:
+```test
+PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/metrics -UseBasicParsing
+
+StatusCode        : 200
+Content           : {
+                      "description": "Total de consultas de invitaciones realizadas",
+                      "metric": "enagenda_invitaciones_consultadas_total",
+                      "value": 1
+                    }
+```
+>>>>>>> 387b4b3a21341cba9b6635151adf980c027e23be

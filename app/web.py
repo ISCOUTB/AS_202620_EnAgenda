@@ -1,33 +1,26 @@
-import json
-import logging
 import os
 import sys
-import time
-import uuid
-from collections import Counter
-from datetime import datetime, timedelta, timezone
-
-from flask import (
-    Flask,
-    g,
-    jsonify,
-    redirect,
-    render_template_string,
-    request,
-    send_file,
-    url_for,
-)
 
 # Permite importar el paquete src cuando ejecutamos:
 # python app\web.py
 sys.path.insert(
     0,
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 
-from src.invitaciones.aplicacion.gestionar_invitacion import (
-    GestionarInvitacion,
+from datetime import datetime, timedelta
+
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template_string,
+    request,
+    url_for,
+    send_file,
 )
+
+from src.invitaciones.aplicacion.gestionar_invitacion import GestionarInvitacion
 from src.invitaciones.dominio.invitaciones import EstadoInvitacion
 from src.invitaciones.infraestructura.repositorio_memoria import (
     RepositorioInvitacionesMemoria,
@@ -36,103 +29,31 @@ from src.invitaciones.infraestructura.repositorio_memoria import (
 
 app = Flask(__name__)
 
-# SECRET_KEY se obtiene exclusivamente desde variables de entorno.
-# El valor real no se versiona ni se incluye en el código fuente.
-secret_key = os.getenv("SECRET_KEY")
+# Repositorio en memoria para la interfaz mínima
+repositorio = RepositorioInvitacionesMemoria()
+gestionar_invitacion = GestionarInvitacion(repositorio)
 
-if not secret_key:
-    raise RuntimeError(
-        "La variable de entorno SECRET_KEY es obligatoria."
-    )
-
-app.config["SECRET_KEY"] = secret_key
-
-
-logger = logging.getLogger("enagenda")
-logger.setLevel(os.getenv("LOG_LEVEL", "INFO"))
-
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(message)s"))
-    logger.addHandler(handler)
-
-logger.propagate = False
-
-
-metricas = {
-    "http_requests_total": 0,
-    "http_requests_by_path": Counter(),
-    "http_responses_by_status": Counter(),
-}
-
-
-@app.before_request
-def iniciar_solicitud():
-    g.request_id = request.headers.get(
-        "X-Request-ID",
-        str(uuid.uuid4()),
-    )
-    g.request_started_at = time.perf_counter()
-
-
-@app.after_request
-def registrar_solicitud(response):
-    inicio = getattr(g, "request_started_at", None)
-    duracion_ms = None
-
-    if inicio is not None:
-        duracion_ms = round(
-            (time.perf_counter() - inicio) * 1000,
-            2,
-        )
-
-    metricas["http_requests_total"] += 1
-    metricas["http_requests_by_path"][request.path] += 1
-    metricas["http_responses_by_status"][str(response.status_code)] += 1
-
-    logger.info(
-        json.dumps(
-            {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "level": "INFO",
-                "event": "http_request",
-                "request_id": g.request_id,
-                "method": request.method,
-                "path": request.path,
-                "status_code": response.status_code,
-                "duration_ms": duracion_ms,
-            }
-        )
-    )
-
-    response.headers["X-Request-ID"] = g.request_id
-    return response
+# Contador de consultas realizadas a través de la API
+invitaciones_consultadas_total = 0
 
 
 @app.get("/health")
 def health():
-    return jsonify(
-        status="ok",
-        service="enagenda-api",
-    ), 200
+    return {
+        "status": "ok"
+    }, 200
 
 
 @app.get("/metrics")
 def metrics():
+    """Expone la métrica de consultas a invitaciones."""
     return jsonify(
-        http_requests_total=metricas["http_requests_total"],
-        http_requests_by_path=dict(
-            metricas["http_requests_by_path"]
-        ),
-        http_responses_by_status=dict(
-            metricas["http_responses_by_status"]
-        ),
+        {
+            "metric": "enagenda_invitaciones_consultadas_total",
+            "value": invitaciones_consultadas_total,
+            "description": "Total de consultas de invitaciones realizadas",
+        }
     ), 200
-
-
-# Repositorio en memoria para la interfaz mínima.
-repositorio = RepositorioInvitacionesMemoria()
-gestionar_invitacion = GestionarInvitacion(repositorio)
 
 
 @app.get("/openapi.yaml")
@@ -179,47 +100,39 @@ def ver_invitacion(token):
         elif estado == "no_asistire":
             nuevo_estado = EstadoInvitacion.NO_ASISTIRE
         else:
-            mensaje = "Respuesta no válida."
             nuevo_estado = None
 
-        if nuevo_estado is not None:
+        if nuevo_estado is None:
+            mensaje = "Estado no válido."
+        else:
             try:
-                invitacion = gestionar_invitacion.responder(
+                gestionar_invitacion.responder(
                     token=token,
                     estado=nuevo_estado,
                     ahora=datetime.now(),
                 )
-
-                mensaje = (
-                    f"Respuesta guardada: "
-                    f"{invitacion.estado.value}"
-                )
-
+                mensaje = "Respuesta registrada correctamente."
             except ValueError as error:
-                mensaje = str(error)
+                return f"<h1>Error</h1><p>{error}</p>", 404
 
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
         return f"<h1>Error</h1><p>{error}</p>", 404
 
     return render_template_string(
         """
-        <!DOCTYPE html>
+        <!doctype html>
         <html lang="es">
         <head>
-            <meta charset="UTF-8">
-            <title>Invitación - EnAgenda</title>
+            <meta charset="utf-8">
+            <title>Invitación</title>
         </head>
-
         <body>
-            <h1>EnAgenda</h1>
-
-            <h2>Invitación</h2>
+            <h1>Invitación</h1>
 
             <p>
                 <strong>Destinatario:</strong>
@@ -237,25 +150,15 @@ def ver_invitacion(token):
             </p>
 
             {% if mensaje %}
-                <p>
-                    <strong>{{ mensaje }}</strong>
-                </p>
+                <p><strong>{{ mensaje }}</strong></p>
             {% endif %}
 
             <form method="post">
-                <button
-                    type="submit"
-                    name="estado"
-                    value="confirmado"
-                >
+                <button type="submit" name="estado" value="confirmado">
                     Confirmar asistencia
                 </button>
 
-                <button
-                    type="submit"
-                    name="estado"
-                    value="no_asistire"
-                >
+                <button type="submit" name="estado" value="no_asistire">
                     No asistiré
                 </button>
             </form>
@@ -270,14 +173,21 @@ def ver_invitacion(token):
 @app.route("/api/v1/invitaciones/<token>", methods=["GET"])
 def api_consultar_invitacion(token):
     """Consulta una invitación y devuelve sus datos en JSON."""
+    global invitaciones_consultadas_total
+
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
-        return jsonify({"error": str(error)}), 404
+        return jsonify(
+            {
+                "error": str(error)
+            }
+        ), 404
+
+    invitaciones_consultadas_total += 1
 
     return jsonify(
         {
@@ -298,7 +208,9 @@ def api_responder_invitacion(token):
 
     if not isinstance(datos, dict) or "estado" not in datos:
         return jsonify(
-            {"error": "Debe proporcionar el campo 'estado'."}
+            {
+                "error": "Debe proporcionar el campo 'estado'."
+            }
         ), 400
 
     estado = datos["estado"]
@@ -309,7 +221,9 @@ def api_responder_invitacion(token):
         nuevo_estado = EstadoInvitacion.NO_ASISTIRE
     else:
         return jsonify(
-            {"error": "El estado proporcionado no es válido."}
+            {
+                "error": "El estado proporcionado no es válido."
+            }
         ), 400
 
     try:
@@ -318,9 +232,12 @@ def api_responder_invitacion(token):
             estado=nuevo_estado,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
-        return jsonify({"error": str(error)}), 404
+        return jsonify(
+            {
+                "error": str(error)
+            }
+        ), 404
 
     return jsonify(
         {
@@ -335,9 +252,4 @@ def api_responder_invitacion(token):
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "5000"))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-    )
+    app.run(debug=True)

@@ -1,7 +1,17 @@
 services:
   - type: web
+<<<<<<< HEAD
     name: enagenda-api-equipo
     runtime: docker
     plan: free
     healthCheckPath: /health
     autoDeploy: true
+=======
+    name: enagenda
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+>>>>>>> 387b4b3a21341cba9b6635151adf980c027e23be
