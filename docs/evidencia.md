@@ -39,3 +39,19 @@ Press CTRL+C to quit
  * Debugger is active!
  * Debugger PIN: 144-640-716
  ```
+
+ ## Evidencia de despliegue y observabilidad
+
+> Esta sección se completa con resultados reales después del despliegue en
+> Render. No se consideran evidencia suficiente capturas de tutoriales.
+
+- URL pública: [PENDIENTE].
+- Health check: [PENDIENTE].
+- Métricas: [PENDIENTE].
+- Pipeline de CI en verde: [PENDIENTE].
+- Logs estructurados: [PENDIENTE: incluir una línea real de Render].
+- Medición de reactivación: [medicion-render.md](despliegue/medicion-render.md).
+- Comparación de alternativas: [comparacion-api.md](despliegue/comparacion-api.md).
+- Costos: [costos.md](despliegue/costos.md).
+- Procedimiento de despliegue: [procedimiento-despliegue.md](despliegue/procedimiento-despliegue.md).
+- Decisión de plataforma: [ADR-0003](adr/0003-desplegar-api-flask-en-render.md).

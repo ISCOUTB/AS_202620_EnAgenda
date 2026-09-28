@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+
   pull_request:
     branches:
       - master
+
 
 jobs:
   test:
@@ -16,16 +18,28 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
+
       - name: Instalar dependencias
         run: pip install -r requerimiento.txt
 
+
       - name: Ejecutar pruebas
+        env:
+          SECRET_KEY: clave-efimera-solo-para-ci
         run: pytest -q
 
+
       - name: Validar contrato OpenAPI
+        env:
+          SECRET_KEY: clave-efimera-solo-para-ci
         run: pytest -q tests/test_contrato_openapi.py
+
+
+      - name: Construir imagen Docker
+        run: docker build -t enagenda:${{ github.sha }} .
