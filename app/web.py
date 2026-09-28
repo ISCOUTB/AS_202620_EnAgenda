@@ -26,6 +26,29 @@ app = Flask(__name__)
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
 
+# Contador de consultas realizadas a través de la API
+invitaciones_consultadas_total = 0
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok"
+    }, 200
+
+invitaciones_consultadas_total = 0
+
+@app.get("/metrics")
+def metrics():
+    """Expone la métrica de consultas a invitaciones."""
+    return jsonify(
+        {
+            "metric": "enagenda_invitaciones_consultadas_total",
+            "value": invitaciones_consultadas_total,
+            "description": "Total de consultas de invitaciones realizadas"
+        }
+    ), 200
+
 @app.get("/openapi.yaml")
 def obtener_contrato_openapi():
     ruta_contrato = os.path.join(
@@ -150,6 +173,8 @@ def ver_invitacion(token):
 @app.route("/api/v1/invitaciones/<token>", methods=["GET"])
 def api_consultar_invitacion(token):
     """Consulta una invitación y devuelve sus datos en JSON."""
+    global invitaciones_consultadas_total
+
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
@@ -158,6 +183,8 @@ def api_consultar_invitacion(token):
 
     except ValueError as error:
         return jsonify({"error": str(error)}), 404
+
+    invitaciones_consultadas_total += 1
 
     return jsonify(
         {
