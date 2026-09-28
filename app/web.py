@@ -7,13 +7,6 @@ import uuid
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 
-# Permite importar el paquete src cuando ejecutamos:
-# python app\web.py
-sys.path.insert(
-    0,
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-
 from flask import (
     Flask,
     g,
@@ -23,6 +16,13 @@ from flask import (
     request,
     send_file,
     url_for,
+)
+
+# Permite importar el paquete src cuando ejecutamos:
+# python app\web.py
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 
 from src.invitaciones.aplicacion.gestionar_invitacion import (
@@ -36,13 +36,16 @@ from src.invitaciones.infraestructura.repositorio_memoria import (
 
 app = Flask(__name__)
 
-# En producción, Render inyecta SECRET_KEY mediante variable de entorno.
-# El valor por defecto permite ejecutar pruebas locales y no debe utilizarse
-# como secreto de producción.
-app.config["SECRET_KEY"] = os.getenv(
-    "SECRET_KEY",
-    "clave-solo-desarrollo-no-usar-en-produccion",
-)
+# SECRET_KEY se obtiene exclusivamente desde variables de entorno.
+# El valor real no se versiona ni se incluye en el código fuente.
+secret_key = os.getenv("SECRET_KEY")
+
+if not secret_key:
+    raise RuntimeError(
+        "La variable de entorno SECRET_KEY es obligatoria."
+    )
+
+app.config["SECRET_KEY"] = secret_key
 
 
 logger = logging.getLogger("enagenda")
@@ -127,7 +130,7 @@ def metrics():
     ), 200
 
 
-# Repositorio en memoria para la interfaz mínima
+# Repositorio en memoria para la interfaz mínima.
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
 
@@ -333,4 +336,8 @@ def api_responder_invitacion(token):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port)
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+    )
