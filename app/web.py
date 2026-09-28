@@ -1,4 +1,3 @@
-
 import os
 import sys
 
@@ -11,7 +10,15 @@ sys.path.insert(
 
 from datetime import datetime, timedelta
 
-from flask import Flask, jsonify, redirect, render_template_string, request, url_for, send_file
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template_string,
+    request,
+    url_for,
+    send_file,
+)
 
 from src.invitaciones.aplicacion.gestionar_invitacion import GestionarInvitacion
 from src.invitaciones.dominio.invitaciones import EstadoInvitacion
@@ -36,7 +43,6 @@ def health():
         "status": "ok"
     }, 200
 
-invitaciones_consultadas_total = 0
 
 @app.get("/metrics")
 def metrics():
@@ -45,9 +51,10 @@ def metrics():
         {
             "metric": "enagenda_invitaciones_consultadas_total",
             "value": invitaciones_consultadas_total,
-            "description": "Total de consultas de invitaciones realizadas"
+            "description": "Total de consultas de invitaciones realizadas",
         }
     ), 200
+
 
 @app.get("/openapi.yaml")
 def obtener_contrato_openapi():
@@ -57,7 +64,12 @@ def obtener_contrato_openapi():
         "api",
         "openapi.yaml",
     )
-    return send_file(ruta_contrato, mimetype="application/yaml")
+
+    return send_file(
+        ruta_contrato,
+        mimetype="application/yaml",
+    )
+
 
 @app.route("/")
 def inicio():
@@ -67,7 +79,12 @@ def inicio():
         fecha_limite_respuesta=datetime.now() + timedelta(days=1),
     )
 
-    return redirect(url_for("ver_invitacion", token=invitacion.token))
+    return redirect(
+        url_for(
+            "ver_invitacion",
+            token=invitacion.token,
+        )
+    )
 
 
 @app.route("/invitacion/<token>", methods=["GET", "POST"])
@@ -83,47 +100,39 @@ def ver_invitacion(token):
         elif estado == "no_asistire":
             nuevo_estado = EstadoInvitacion.NO_ASISTIRE
         else:
-            mensaje = "Respuesta no válida."
             nuevo_estado = None
 
-        if nuevo_estado is not None:
+        if nuevo_estado is None:
+            mensaje = "Estado no válido."
+        else:
             try:
-                invitacion = gestionar_invitacion.responder(
+                gestionar_invitacion.responder(
                     token=token,
                     estado=nuevo_estado,
                     ahora=datetime.now(),
                 )
-
-                mensaje = (
-                    f"Respuesta guardada: "
-                    f"{invitacion.estado.value}"
-                )
-
+                mensaje = "Respuesta registrada correctamente."
             except ValueError as error:
-                mensaje = str(error)
+                return f"<h1>Error</h1><p>{error}</p>", 404
 
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
         return f"<h1>Error</h1><p>{error}</p>", 404
 
     return render_template_string(
         """
-        <!DOCTYPE html>
+        <!doctype html>
         <html lang="es">
         <head>
-            <meta charset="UTF-8">
-            <title>Invitación - EnAgenda</title>
+            <meta charset="utf-8">
+            <title>Invitación</title>
         </head>
-
         <body>
-            <h1>EnAgenda</h1>
-
-            <h2>Invitación</h2>
+            <h1>Invitación</h1>
 
             <p>
                 <strong>Destinatario:</strong>
@@ -141,25 +150,15 @@ def ver_invitacion(token):
             </p>
 
             {% if mensaje %}
-                <p>
-                    <strong>{{ mensaje }}</strong>
-                </p>
+                <p><strong>{{ mensaje }}</strong></p>
             {% endif %}
 
             <form method="post">
-                <button
-                    type="submit"
-                    name="estado"
-                    value="confirmado"
-                >
+                <button type="submit" name="estado" value="confirmado">
                     Confirmar asistencia
                 </button>
 
-                <button
-                    type="submit"
-                    name="estado"
-                    value="no_asistire"
-                >
+                <button type="submit" name="estado" value="no_asistire">
                     No asistiré
                 </button>
             </form>
@@ -169,6 +168,7 @@ def ver_invitacion(token):
         invitacion=invitacion,
         mensaje=mensaje,
     )
+
 
 @app.route("/api/v1/invitaciones/<token>", methods=["GET"])
 def api_consultar_invitacion(token):
@@ -180,9 +180,12 @@ def api_consultar_invitacion(token):
             token=token,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
-        return jsonify({"error": str(error)}), 404
+        return jsonify(
+            {
+                "error": str(error)
+            }
+        ), 404
 
     invitaciones_consultadas_total += 1
 
@@ -202,10 +205,12 @@ def api_consultar_invitacion(token):
 def api_responder_invitacion(token):
     """Registra la respuesta del invitado y devuelve la invitación en JSON."""
     datos = request.get_json(silent=True)
-    
+
     if not isinstance(datos, dict) or "estado" not in datos:
         return jsonify(
-            {"error": "Debe proporcionar el campo 'estado'."}
+            {
+                "error": "Debe proporcionar el campo 'estado'."
+            }
         ), 400
 
     estado = datos["estado"]
@@ -216,7 +221,9 @@ def api_responder_invitacion(token):
         nuevo_estado = EstadoInvitacion.NO_ASISTIRE
     else:
         return jsonify(
-            {"error": "El estado proporcionado no es válido."}
+            {
+                "error": "El estado proporcionado no es válido."
+            }
         ), 400
 
     try:
@@ -225,19 +232,24 @@ def api_responder_invitacion(token):
             estado=nuevo_estado,
             ahora=datetime.now(),
         )
-
     except ValueError as error:
-        return jsonify({"error": str(error)}), 404
+        return jsonify(
+            {
+                "error": str(error)
+            }
+        ), 404
 
-    return jsonify({
-        "token": invitacion.token,
-        "destinatario": invitacion.destinatario,
-        "fecha_limite_respuesta":
-               invitacion.fecha_limite_respuesta.isoformat(),
-        "estado": invitacion.estado.value,
-    }), 200
+    return jsonify(
+        {
+            "token": invitacion.token,
+            "destinatario": invitacion.destinatario,
+            "fecha_limite_respuesta": (
+                invitacion.fecha_limite_respuesta.isoformat()
+            ),
+            "estado": invitacion.estado.value,
+        }
+    ), 200
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
