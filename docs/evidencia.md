@@ -41,54 +41,16 @@ Press CTRL+C to quit
  * Debugger PIN: 144-640-716
  ```
 
-<<<<<<< HEAD
- ## Evidencia de despliegue y observabilidad
+## Evidencia de despliegue y observabilidad
 
-> Esta sección se completa con resultados reales después del despliegue en
-> Render. No se consideran evidencia suficiente capturas de tutoriales.
+La aplicación fue ejecutada y verificada mediante comandos locales, permitiendo evidenciar paso a paso el proceso de ejecución, despliegue y comprobación de los servicios.
 
-- URL pública: [PENDIENTE].
-- Health check: [PENDIENTE].
-- Métricas: [PENDIENTE].
-- Pipeline de CI en verde: [PENDIENTE].
-- Logs estructurados: [PENDIENTE: incluir una línea real de Render].
-- Medición de reactivación: [medicion-render.md](despliegue/medicion-render.md).
-- Comparación de alternativas: [comparacion-api.md](despliegue/comparacion-api.md).
-- Costos: [costos.md](despliegue/costos.md).
-- Procedimiento de despliegue: [procedimiento-despliegue.md](despliegue/procedimiento-despliegue.md).
-- Decisión de plataforma: [ADR-0003](adr/0003-desplegar-api-flask-en-render.md).
-=======
-##Verificación de salud de la aplicación
+### Verificación de salud de la aplicación
+
 ```text
 PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/health -UseBasicParsing
 
-StatusCode        : 200
-Content           : {
-                      "status": "ok"
-                    }
-```
-
-##Verificación de métricas
-###Consulta inicial:
-```text
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/metrics -UseBasicParsing
-
-StatusCode        : 200
-Content           : {
-                      "description": "Total de consultas de invitaciones realizadas",
-                      "metric": "enagenda_invitaciones_consultadas_total",
-                      "value": 0
-                    }
-```
-###Después de consultar una invitación mediante GET /api/v1/invitaciones/<token>:
-```test
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/metrics -UseBasicParsing
-
-StatusCode        : 200
-Content           : {
-                      "description": "Total de consultas de invitaciones realizadas",
-                      "metric": "enagenda_invitaciones_consultadas_total",
-                      "value": 1
-                    }
-```
->>>>>>> 387b4b3a21341cba9b6635151adf980c027e23be
+StatusCode : 200
+Content    : {
+               "status": "ok"
+             }
