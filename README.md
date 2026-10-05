@@ -161,3 +161,51 @@ El proyecto cuenta con un flujo de integración continua en:
 El flujo instala Python, instala las dependencias definidas en `requerimiento.txt` y ejecuta las pruebas automáticamente en GitHub Actions.
 
 De esta forma se puede verificar que los cambios realizados mantengan las pruebas funcionando correctamente.
+
+## Ejecución con Docker
+
+Desde la raíz del repositorio:
+
+```powershell
+Copy-Item .env.example .env
+docker compose up --build
+```
+
+La aplicación queda disponible localmente en:
+
+```text
+http://localhost:5000
+```
+
+Validaciones locales:
+
+```powershell
+curl.exe -i http://localhost:5000/health
+curl.exe -i http://localhost:5000/metrics
+python -m pytest -q
+```
+
+Para detener el entorno:
+
+```powershell
+docker compose down
+```
+
+El archivo `.env` es local y no debe subirse al repositorio.
+
+## Despliegue institucional
+
+EnAgenda se despliega en Dokploy institucional mediante Docker Compose.
+
+- Repositorio: `ISCOUTB/AS_202620_EnAgenda`.
+- Rama de despliegue: `master`.
+- Activación: `On Push`.
+- Archivo Compose: `./docker-compose.yml`.
+- Puerto interno: `5000`.
+- Estado del contenedor: desplegado correctamente en Dokploy.
+- URL pública: pendiente de crear o asignar un host válido.
+- Health check previsto: `http://[host-asignado]/health`.
+- Métricas previstas: `http://[host-asignado]/metrics`.
+
+La URL pública y HTTPS se documentarán cuando se configure un dominio o host
+válido en Dokploy.

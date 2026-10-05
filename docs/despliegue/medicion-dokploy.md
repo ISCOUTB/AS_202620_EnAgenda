@@ -1,34 +1,58 @@
-# Medición de reactivación de Render Free
+# Medición de disponibilidad y latencia — Dokploy
 
-## Contexto
+## Estado actual
 
-Render Free puede suspender un servicio web después de 15 minutos sin tráfico.
-Esta medición evalúa el comportamiento de reactivación de la API Flask de
-EnAgenda.
+El contenedor de EnAgenda fue desplegado exitosamente en Dokploy institucional.
+La medición externa está pendiente porque aún no se ha creado o asignado una URL
+pública mediante un host válido.
+
+## Escenario asociado
+
+EC-XX — Consulta pública de invitación.
+
+## Objetivo
+
+Comprobar que el endpoint de salud de EnAgenda esté disponible desde la URL
+pública configurada en Dokploy y que su latencia cumpla el umbral de calidad
+aprobado por el equipo.
+
+## Umbral
+
+El endpoint `GET /health` debe responder `HTTP 200` en menos de
+`[umbral aprobado] ms` en condiciones normales de operación.
+
+El valor definitivo del umbral se definirá con el escenario de calidad aprobado
+por el equipo.
 
 ## Procedimiento
 
-1. Se verificó que `GET /health` respondiera correctamente con el servicio
-   activo.
-2. No se enviaron solicitudes a la URL durante al menos 16 minutos.
-3. Se midió la primera solicitud posterior a la inactividad.
-4. Se midió una segunda solicitud inmediata.
+1. Configurar en Dokploy una URL pública real o temporal mediante un host
+   válido.
+2. Realizar un redeploy del servicio después de guardar el dominio.
+3. Ejecutar 20 solicitudes consecutivas a:
+   `http://[host-asignado]/health` o
+   `https://[host-asignado]/health`.
+4. Registrar por solicitud el código HTTP y el tiempo total de respuesta.
+5. Guardar los resultados en un archivo CSV o tabla de evidencia.
+6. Calcular p50, p95 y el tiempo máximo.
+7. Comparar p95 contra el umbral aprobado.
+8. Registrar fecha, commit desplegado, host utilizado y resultado.
 
-Comando utilizado:
+## Evidencia de despliegue disponible
 
-```bash
-curl -s -o /dev/null -w "codigo=%{http_code} tiempo=%{time_total}s\n" \
-  https://[URL-REAL].onrender.com/health
+Dokploy registró:
+
+```text
+Image enagenda-sistema-m7pzgi-enagenda Built
+Container enagenda-sistema-m7pzgi-enagenda-1 Started
+Docker Compose Deployed: ✅
 ```
 
-## Resultados
+## Información pendiente
 
-| Fecha y hora | Condición | Código HTTP | Tiempo total |
-|---|---|---:|---:|
-| Pendiente | Servicio activo | Pendiente | Pendiente |
-| Pendiente | Primera solicitud después de 16 minutos | Pendiente | Pendiente |
-| Pendiente | Segunda solicitud inmediata | Pendiente | Pendiente |
-
-## Conclusión
-
-Pendiente de ejecutar la medición sobre el entorno público.
+- Host o URL pública configurada.
+- Resultado de `/health` desde internet.
+- Resultado de `/metrics` desde internet.
+- Umbral de latencia aprobado.
+- Cuotas institucionales de recursos.
+- Mecanismo de rollback disponible en Dokploy.
