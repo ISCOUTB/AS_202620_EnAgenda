@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Datos de los invitados | EnAgenda</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/invitados.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="pagina">
+
+        <section class="tarjeta">
+
+            <div class="encabezado">
+                <h1>Datos de los invitados</h1>
+                <p>
+                    Ingresa el nombre y correo electrónico de cada persona.
+                </p>
+            </div>
+
+            <form
+                action="{{ url_for('crear_invitaciones') }}"
+                method="POST"
+            >
+
+                <!-- Datos generales provenientes de la pantalla anterior -->
+
+                <input
+                    type="hidden"
+                    name="cantidad_invitados"
+                    value="{{ cantidad_invitados }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="fecha_limite"
+                    value="{{ fecha_limite }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="hora"
+                    value="{{ hora }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="minuto"
+                    value="{{ minuto }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="periodo"
+                    value="{{ periodo }}"
+                >
+
+
+                <div class="lista-invitados">
+
+                    {% for numero in range(1, cantidad_invitados + 1) %}
+
+                    <div class="invitado">
+
+                        <div class="numero">
+                            {{ numero }}
+                        </div>
+
+                        <div class="contenido-invitado">
+
+                            <h2>Invitado {{ numero }}</h2>
+
+                            <div class="campos">
+
+                                <div class="campo">
+
+                                    <label for="nombre_{{ numero }}">
+                                        Nombre
+                                    </label>
+
+                                    <input
+                                        id="nombre_{{ numero }}"
+                                        name="nombre_{{ numero }}"
+                                        type="text"
+                                        placeholder="Nombre del invitado"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="campo">
+
+                                    <label for="correo_{{ numero }}">
+                                        Correo electrónico
+                                    </label>
+
+                                    <input
+                                        id="correo_{{ numero }}"
+                                        name="correo_{{ numero }}"
+                                        type="email"
+                                        placeholder="correo@ejemplo.com"
+                                        required
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="acciones">
+
+                    <a
+                        href="{{ url_for('inicio') }}"
+                        class="boton-secundario"
+                    >
+                        Volver
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="boton-principal"
+                    >
+                        Crear invitaciones
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

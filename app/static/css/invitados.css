@@ -1,0 +1,182 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f4f6;
+    color: #181818;
+}
+
+.pagina {
+    min-height: 100vh;
+    padding: 32px 16px;
+}
+
+.tarjeta {
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 36px;
+    background: #ffffff;
+    border-radius: 22px;
+}
+
+.encabezado {
+    margin-bottom: 32px;
+}
+
+.encabezado h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+}
+
+.encabezado p {
+    margin: 0;
+    color: #666666;
+    font-size: 16px;
+}
+
+.lista-invitados {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.invitado {
+    display: flex;
+    gap: 18px;
+    padding: 22px;
+    border: 1px solid #dddddd;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #242424;
+    color: #ffffff;
+
+    font-weight: bold;
+}
+
+.contenido-invitado {
+    width: 100%;
+}
+
+.contenido-invitado h2 {
+    margin: 4px 0 18px;
+    font-size: 18px;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.campo label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.campo input {
+    width: 100%;
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid #d6d6d6;
+    border-radius: 10px;
+
+    font-size: 15px;
+    outline: none;
+}
+
+.campo input:focus {
+    border-color: #242424;
+}
+
+.acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.boton-principal,
+.boton-secundario {
+    min-height: 48px;
+    padding: 0 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.boton-principal {
+    border: none;
+    background: #242424;
+    color: #ffffff;
+}
+
+.boton-principal:hover {
+    background: #000000;
+}
+
+.boton-secundario {
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    color: #242424;
+}
+
+.boton-secundario:hover {
+    background: #f5f5f5;
+}
+
+@media (max-width: 700px) {
+
+    .tarjeta {
+        padding: 24px 18px;
+    }
+
+    .campos {
+        grid-template-columns: 1fr;
+    }
+
+    .invitado {
+        flex-direction: column;
+    }
+
+    .acciones {
+        flex-direction: column-reverse;
+    }
+
+    .boton-principal,
+    .boton-secundario {
+        width: 100%;
+    }
+}
