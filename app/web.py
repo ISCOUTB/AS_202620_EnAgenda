@@ -8,7 +8,7 @@ sys.path.insert(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from flask import (
     Flask,
@@ -108,19 +108,48 @@ def obtener_contrato_openapi():
     )
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def inicio():
-    """Crea una invitación de prueba y muestra su página."""
-    invitacion = gestionar_invitacion.crear_invitacion(
-        destinatario="Invitado de prueba",
-        fecha_limite_respuesta=datetime.now() + timedelta(days=1),
-    )
+    """Muestra el inicio de EnAgenda y permite crear invitaciones."""
+    mensaje_error = None
 
-    return redirect(
-        url_for(
-            "ver_invitacion",
-            token=invitacion.token,
-        )
+    if request.method == "POST":
+        destinatario = request.form.get("destinatario", "").strip()
+        fecha_limite = request.form.get("fecha_limite", "").strip()
+
+        if not destinatario:
+            mensaje_error = "Debes ingresar el nombre del invitado."
+
+        elif not fecha_limite:
+            mensaje_error = "Debes seleccionar una fecha límite."
+
+        else:
+            try:
+                fecha_limite_respuesta = datetime.fromisoformat(fecha_limite)
+
+                if fecha_limite_respuesta <= datetime.now():
+                    mensaje_error = (
+                        "La fecha límite debe ser posterior a la fecha actual."
+                    )
+                else:
+                    invitacion = gestionar_invitacion.crear_invitacion(
+                        destinatario=destinatario,
+                        fecha_limite_respuesta=fecha_limite_respuesta,
+                    )
+
+                    return redirect(
+                        url_for(
+                            "ver_invitacion",
+                            token=invitacion.token,
+                        )
+                    )
+
+            except ValueError:
+                mensaje_error = "La fecha ingresada no es válida."
+
+    return render_template(
+        "inicio.html",
+        mensaje_error=mensaje_error,
     )
 
 

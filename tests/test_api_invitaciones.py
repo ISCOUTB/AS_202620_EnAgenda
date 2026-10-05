@@ -12,16 +12,21 @@ def cliente():
 
 
 def obtener_token(cliente):
-    respuesta = cliente.get("/")
+    respuesta = cliente.post(
+        "/",
+        data={
+            "destinatario": "Invitado de prueba",
+            "fecha_limite": "2099-12-31T23:30",
+        },
+        follow_redirects=False,
+    )
 
-    assert respuesta.status_code in (200, 302)
+    assert respuesta.status_code == 302
+    assert respuesta.location is not None
 
     token = respuesta.location.rsplit("/", 1)[-1]
 
-    assert token
-
     return token
-
 
 def test_get_invitacion_devuelve_datos_del_contrato(cliente):
     token = obtener_token(cliente)

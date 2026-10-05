@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EnAgenda</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/inicio.css') }}"
+    >
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="container">
+
+        <header class="brand">
+            <div class="logo">E</div>
+
+            <div>
+                <h1>EnAgenda</h1>
+                <p>Organiza. Invita. Celebra.</p>
+            </div>
+        </header>
+
+        <section class="hero">
+            <p class="label">GESTIÓN DE EVENTOS</p>
+
+            <h2>
+                Tus eventos,<br>
+                mejor organizados.
+            </h2>
+
+            <p class="description">
+                Crea una invitación y permite que tus invitados
+                confirmen su asistencia de forma sencilla.
+            </p>
+        </section>
+
+        <section class="form-card">
+
+            <div class="form-header">
+                <h3>Nueva invitación</h3>
+                <p>Ingresa los datos del invitado.</p>
+            </div>
+
+            {% if mensaje_error %}
+                <div class="error">
+                    {{ mensaje_error }}
+                </div>
+            {% endif %}
+
+            <form method="post">
+
+                <div class="field">
+                    <label for="destinatario">
+                        Nombre del invitado
+                    </label>
+
+                    <input
+                        id="destinatario"
+                        name="destinatario"
+                        type="text"
+                        placeholder="Ej. María Rodríguez"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="fecha_limite">
+                        Fecha límite de respuesta
+                    </label>
+
+                    <input
+                        id="fecha_limite"
+                        name="fecha_limite"
+                        type="datetime-local"
+                        step="1800"
+                        required
+                    >
+                </div>
+
+                <button type="submit">
+                    Crear invitación
+                </button>
+
+            </form>
+
+        </section>
+
+    </section>
+
+</main>
+
+</body>
+</html>
