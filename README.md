@@ -130,24 +130,52 @@ AS_202620_EnAgenda/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+│
 ├── app/
+│   ├── static/
+│   │   └── css/
+│   │       ├── inicio.css
+│   │       ├── invitados.css
+│   │       ├── invitacion.css
+│   │       ├── invitacion_creada.css
+│   │       └── invitaciones_creadas.css
+│   │
+│   ├── templates/
+│   │   ├── inicio.html
+│   │   ├── invitados.html
+│   │   ├── invitacion.html
+│   │   ├── invitacion_creada.html
+│   │   └── invitaciones_creadas.html
+│   │
 │   ├── __init__.py
 │   └── web.py
+│
 ├── src/
 │   └── invitaciones/
 │       ├── aplicacion/
 │       ├── dominio/
 │       └── infraestructura/
+│
 ├── tests/
+│   ├── test_api_invitaciones.py
 │   └── test_invitaciones.py
+│
 ├── docs/
 │   ├── adr/
+│   ├── api/
 │   ├── arc42/
 │   ├── arquitectura/
-│   └── c4/
+│   ├── c4/
+│   ├── despliegue/
+│   ├── aspectos.md
+│   ├── evidencia.md
+│   └── ia.md
+│
 ├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
 ├── README.md
-└── requerimiento.txt
+└── requirements.txt
 ```
 
 ## Integración continua
