@@ -71,6 +71,42 @@
                 </div>
 
                 <div class="field">
+                    <label>Hora límite</label>
+
+                    <div class="time-selector">
+
+                        <select name="hora" required>
+                            <option value="">Hora</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+
+                        <span>:</span>
+
+                        <select name="minuto" required>
+                            <option value="00">00</option>
+                            <option value="30">30</option>
+                        </select>
+
+                        <select name="periodo" required>
+                            <option value="AM">a. m.</option>
+                            <option value="PM">p. m.</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="field">
                     <label for="fecha_limite">
                         Fecha límite de respuesta
                     </label>
@@ -78,8 +114,7 @@
                     <input
                         id="fecha_limite"
                         name="fecha_limite"
-                        type="datetime-local"
-                        step="1800"
+                        type="date"
                         required
                     >
                 </div>

@@ -160,4 +160,29 @@ button:hover {
     .form-card {
         padding: 25px 20px;
     }
+    
+}.time-selector {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr 1fr;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-selector select {
+    width: 100%;
+    padding: 14px 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    font-size: 15px;
+    outline: none;
+}
+
+.time-selector span {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.time-selector select:focus {
+    border-color: #333;
 }

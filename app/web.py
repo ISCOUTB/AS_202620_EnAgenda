@@ -114,8 +114,12 @@ def inicio():
     mensaje_error = None
 
     if request.method == "POST":
-        destinatario = request.form.get("destinatario", "").strip()
-        fecha_limite = request.form.get("fecha_limite", "").strip()
+        if request.method == "POST":
+            destinatario = request.form.get("destinatario", "").strip()
+            fecha_limite = request.form.get("fecha_limite", "").strip()
+            hora = request.form.get("hora", "").strip()
+            minuto = request.form.get("minuto", "").strip()
+            periodo = request.form.get("periodo", "").strip()
 
         if not destinatario:
             mensaje_error = "Debes ingresar el nombre del invitado."
@@ -139,7 +143,7 @@ def inicio():
 
                     return redirect(
                         url_for(
-                            "ver_invitacion",
+                            "invitacion_creada",
                             token=invitacion.token,
                         )
                     )
@@ -152,6 +156,28 @@ def inicio():
         mensaje_error=mensaje_error,
     )
 
+@app.get("/invitacion-creada/<token>")
+def invitacion_creada(token):
+    """Muestra al organizador la invitación que acaba de crear."""
+    try:
+        invitacion = gestionar_invitacion.consultar(
+            token=token,
+            ahora=datetime.now(),
+        )
+    except ValueError as error:
+        return f"<h1>Error</h1><p>{error}</p>", 404
+
+    enlace_invitacion = url_for(
+        "ver_invitacion",
+        token=invitacion.token,
+        _external=True,
+    )
+
+    return render_template(
+        "invitacion_creada.html",
+        invitacion=invitacion,
+        enlace_invitacion=enlace_invitacion,
+    )
 
 @app.route("/invitacion/<token>", methods=["GET", "POST"])
 def ver_invitacion(token):

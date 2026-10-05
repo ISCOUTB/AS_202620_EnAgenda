@@ -12,11 +12,15 @@ def cliente():
 
 
 def obtener_token(cliente):
+    """Crea una invitación de prueba y devuelve su token."""
     respuesta = cliente.post(
         "/",
         data={
             "destinatario": "Invitado de prueba",
-            "fecha_limite": "2099-12-31T23:30",
+            "fecha_limite": "2099-12-31",
+            "hora": "11",
+            "minuto": "30",
+            "periodo": "PM",
         },
         follow_redirects=False,
     )
@@ -28,10 +32,13 @@ def obtener_token(cliente):
 
     return token
 
+
 def test_get_invitacion_devuelve_datos_del_contrato(cliente):
     token = obtener_token(cliente)
 
-    respuesta = cliente.get(f"/api/v1/invitaciones/{token}")
+    respuesta = cliente.get(
+        f"/api/v1/invitaciones/{token}"
+    )
 
     assert respuesta.status_code == 200
 
@@ -48,7 +55,9 @@ def test_post_invitacion_confirma_asistencia(cliente):
 
     respuesta = cliente.post(
         f"/api/v1/invitaciones/{token}",
-        json={"estado": "confirmado"},
+        json={
+            "estado": "confirmado"
+        },
     )
 
     assert respuesta.status_code == 200
@@ -62,7 +71,9 @@ def test_post_invitacion_confirma_asistencia(cliente):
 def test_token_inexistente_devuelve_404(cliente):
     respuesta = cliente.post(
         "/api/v1/invitaciones/token-inexistente",
-        json={"estado": "confirmado"},
+        json={
+            "estado": "confirmado"
+        },
     )
 
     assert respuesta.status_code == 404
@@ -72,6 +83,8 @@ def test_token_inexistente_devuelve_404(cliente):
     assert datos == {
         "error": "Invitación no encontrada."
     }
+
+
 def test_metricas_aumentan_al_consultar_invitacion(cliente):
     respuesta_inicial = cliente.get("/metrics")
 
@@ -82,6 +95,7 @@ def test_metricas_aumentan_al_consultar_invitacion(cliente):
     assert metricas_iniciales["metric"] == (
         "enagenda_invitaciones_consultadas_total"
     )
+
     assert metricas_iniciales["value"] == 0
 
     token = obtener_token(cliente)
@@ -101,4 +115,5 @@ def test_metricas_aumentan_al_consultar_invitacion(cliente):
     assert metricas_finales["metric"] == (
         "enagenda_invitaciones_consultadas_total"
     )
+
     assert metricas_finales["value"] == 1
