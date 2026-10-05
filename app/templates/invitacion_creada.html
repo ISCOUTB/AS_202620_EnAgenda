@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Invitación creada | EnAgenda</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/invitacion_creada.css') }}"
+    >
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card">
+
+        <div class="success-icon">✓</div>
+
+        <p class="label">INVITACIÓN CREADA</p>
+
+        <h1>¡Todo listo!</h1>
+
+        <p class="description">
+            La invitación para
+            <strong>{{ invitacion.destinatario }}</strong>
+            fue creada correctamente.
+        </p>
+
+        <div class="details">
+
+            <div class="detail">
+                <span>Invitado</span>
+                <strong>{{ invitacion.destinatario }}</strong>
+            </div>
+
+            <div class="detail">
+                <span>Fecha límite</span>
+
+                <strong>
+                    {{ invitacion.fecha_limite_respuesta.strftime(
+                        '%d/%m/%Y - %I:%M %p'
+                    ) }}
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="link-section">
+
+            <label for="enlace">
+                Enlace para el invitado
+            </label>
+
+            <div class="link-container">
+
+                <input
+                    id="enlace"
+                    type="text"
+                    value="{{ enlace_invitacion }}"
+                    readonly
+                >
+
+                <button
+                    type="button"
+                    onclick="copiarEnlace()"
+                >
+                    Copiar
+                </button>
+
+            </div>
+
+            <p class="help">
+                Este enlace es exclusivo para que el invitado
+                confirme o rechace su asistencia.
+            </p>
+
+        </div>
+
+        <div
+            id="mensaje-copiado"
+            class="copy-message"
+            hidden
+        >
+            ✓ Enlace copiado
+        </div>
+
+        <div class="actions">
+
+            <a
+                href="{{ url_for('inicio') }}"
+                class="button primary"
+            >
+                Crear otra invitación
+            </a>
+
+            <a
+                href="{{ enlace_invitacion }}"
+                class="button secondary"
+                target="_blank"
+            >
+                Ver como invitado
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    function copiarEnlace() {
+        const enlace = document.getElementById("enlace");
+        const mensaje = document.getElementById("mensaje-copiado");
+
+        navigator.clipboard.writeText(enlace.value);
+
+        mensaje.hidden = false;
+
+        setTimeout(() => {
+            mensaje.hidden = true;
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
