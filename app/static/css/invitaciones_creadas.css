@@ -1,0 +1,193 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f5f7;
+    color: #252525;
+}
+
+.page {
+    min-height: 100vh;
+    padding: 45px 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 50px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #262626;
+    color: white;
+    border-radius: 14px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.brand h1 {
+    font-size: 22px;
+}
+
+.brand p {
+    color: #777;
+    font-size: 13px;
+}
+
+.result {
+    margin-bottom: 30px;
+}
+
+.success-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #262626;
+    color: white;
+    border-radius: 50%;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.label {
+    color: #777;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.result h2 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.description {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.date-information {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    background: #262626;
+    color: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.date-information span {
+    color: #bbb;
+}
+
+.guest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.guest {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+}
+
+.guest-information {
+    margin-bottom: 15px;
+}
+
+.guest-information h3 {
+    margin-bottom: 5px;
+}
+
+.guest-information p {
+    color: #777;
+}
+
+.guest-actions {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+}
+
+.guest-actions input {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.guest-actions button,
+.guest-actions a {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.guest-actions button {
+    background: #262626;
+    color: white;
+}
+
+.guest-actions a {
+    background: #eeeeee;
+    color: #333;
+}
+
+.future-email {
+    margin-top: 25px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 14px;
+}
+
+.future-email p {
+    color: #777;
+    margin-top: 6px;
+}
+
+.new-button {
+    display: block;
+    margin-top: 20px;
+    padding: 15px;
+    background: #262626;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 650px) {
+    .guest-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .date-information {
+        flex-direction: column;
+    }
+}

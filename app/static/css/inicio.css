@@ -186,3 +186,9 @@ button:hover {
 .time-selector select:focus {
     border-color: #333;
 }
+
+.field-help {
+    color: #888;
+    font-size: 12px;
+    line-height: 1.5;
+}

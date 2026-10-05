@@ -156,6 +156,93 @@ def inicio():
         mensaje_error=mensaje_error,
     )
 
+@app.post("/crear-invitaciones")
+def crear_invitaciones():
+    """Crea varias invitaciones usando una fecha límite global."""
+    fecha_limite = request.form.get("fecha_limite", "").strip()
+    hora = request.form.get("hora", "").strip()
+    minuto = request.form.get("minuto", "").strip()
+    periodo = request.form.get("periodo", "").strip()
+    cantidad = request.form.get("cantidad_invitados", "").strip()
+
+    try:
+        cantidad_invitados = int(cantidad)
+        hora_numero = int(hora)
+
+        if cantidad_invitados < 1 or cantidad_invitados > 200:
+            raise ValueError
+
+        if hora_numero < 1 or hora_numero > 12:
+            raise ValueError
+
+        if minuto not in ("00", "30"):
+            raise ValueError
+
+        if periodo not in ("AM", "PM"):
+            raise ValueError
+
+        # Convertir de formato 12 horas a 24 horas
+        if periodo == "AM":
+            if hora_numero == 12:
+                hora_numero = 0
+        else:
+            if hora_numero != 12:
+                hora_numero += 12
+
+        fecha_limite_respuesta = datetime.strptime(
+            f"{fecha_limite} {hora_numero:02d}:{minuto}",
+            "%Y-%m-%d %H:%M",
+        )
+
+        if fecha_limite_respuesta <= datetime.now():
+            raise ValueError
+
+    except ValueError:
+        return "Los datos generales de las invitaciones no son válidos.", 400
+
+    invitaciones_creadas = []
+
+    for numero in range(1, cantidad_invitados + 1):
+        nombre = request.form.get(
+            f"nombre_{numero}",
+            "",
+        ).strip()
+
+        correo = request.form.get(
+            f"correo_{numero}",
+            "",
+        ).strip()
+
+        if not nombre or not correo:
+            return (
+                f"Faltan datos del invitado número {numero}.",
+                400,
+            )
+
+        invitacion = gestionar_invitacion.crear_invitacion(
+            destinatario=nombre,
+            fecha_limite_respuesta=fecha_limite_respuesta,
+        )
+
+        invitaciones_creadas.append(
+            {
+                "nombre": nombre,
+                "correo": correo,
+                "token": invitacion.token,
+                "enlace": url_for(
+                    "ver_invitacion",
+                    token=invitacion.token,
+                    _external=True,
+                ),
+            }
+        )
+
+    return render_template(
+        "invitaciones_creadas.html",
+        invitaciones=invitaciones_creadas,
+        fecha_limite_respuesta=fecha_limite_respuesta,
+    )
+
 @app.get("/invitacion-creada/<token>")
 def invitacion_creada(token):
     """Muestra al organizador la invitación que acaba de crear."""

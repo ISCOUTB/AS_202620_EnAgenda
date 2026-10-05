@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Invitaciones creadas | EnAgenda</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for(
+            'static',
+            filename='css/invitaciones_creadas.css'
+        ) }}"
+    >
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="container">
+
+        <header class="brand">
+
+            <div class="logo">
+                E
+            </div>
+
+            <div>
+                <h1>EnAgenda</h1>
+                <p>Organiza. Invita. Celebra.</p>
+            </div>
+
+        </header>
+
+        <section class="result">
+
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <p class="label">
+                INVITACIONES CREADAS
+            </p>
+
+            <h2>
+                ¡Todo listo!
+            </h2>
+
+            <p class="description">
+                Se crearon correctamente
+                {{ invitaciones|length }}
+                invitaciones individuales.
+            </p>
+
+            <div class="date-information">
+
+                <span>Fecha límite de respuesta</span>
+
+                <strong>
+                    {{ fecha_limite_respuesta.strftime(
+                        '%d/%m/%Y - %I:%M %p'
+                    ) }}
+                </strong>
+
+            </div>
+
+        </section>
+
+        <section class="guest-list">
+
+            {% for invitacion in invitaciones %}
+
+                <article class="guest">
+
+                    <div class="guest-information">
+
+                        <h3>
+                            {{ invitacion.nombre }}
+                        </h3>
+
+                        <p>
+                            {{ invitacion.correo }}
+                        </p>
+
+                    </div>
+
+                    <div class="guest-actions">
+
+                        <input
+                            id="enlace-{{ loop.index }}"
+                            type="text"
+                            value="{{ invitacion.enlace }}"
+                            readonly
+                        >
+
+                        <button
+                            type="button"
+                            onclick="copiarEnlace(
+                                'enlace-{{ loop.index }}'
+                            )"
+                        >
+                            Copiar enlace
+                        </button>
+
+                        <a
+                            href="{{ invitacion.enlace }}"
+                            target="_blank"
+                        >
+                            Ver invitación
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+        <div class="future-email">
+
+            <strong>
+                Próximamente: envío automático por correo
+            </strong>
+
+            <p>
+                Cada invitación podrá enviarse automáticamente
+                al correo correspondiente.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('inicio') }}"
+            class="new-button"
+        >
+            Crear nuevas invitaciones
+        </a>
+
+    </section>
+
+</main>
+
+<script>
+    function copiarEnlace(id) {
+        const campo = document.getElementById(id);
+
+        navigator.clipboard.writeText(campo.value);
+    }
+</script>
+
+</body>
+</html>
