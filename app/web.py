@@ -1,13 +1,5 @@
 import os
 import sys
-
-# Permite importar el paquete src cuando ejecutamos:
-# python app\web.py
-sys.path.insert(
-    0,
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-
 from datetime import datetime, timedelta
 
 from flask import (
@@ -16,11 +8,20 @@ from flask import (
     redirect,
     render_template_string,
     request,
-    url_for,
     send_file,
+    url_for,
 )
 
-from src.invitaciones.aplicacion.gestionar_invitacion import GestionarInvitacion
+# Permite importar el paquete src cuando ejecutamos:
+# python app\web.py
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+from src.invitaciones.aplicacion.gestionar_invitacion import (
+    GestionarInvitacion,
+)
 from src.invitaciones.dominio.invitaciones import EstadoInvitacion
 from src.invitaciones.infraestructura.repositorio_memoria import (
     RepositorioInvitacionesMemoria,
@@ -29,35 +30,67 @@ from src.invitaciones.infraestructura.repositorio_memoria import (
 
 app = Flask(__name__)
 
-# Repositorio en memoria para la interfaz mínima
+# Repositorio en memoria para la interfaz mínima.
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
 
-# Contador de consultas realizadas a través de la API
+# Métrica específica de las consultas exitosas a invitaciones.
 invitaciones_consultadas_total = 0
+
+# Métricas HTTP generales en memoria.
+http_requests_total = 0
+http_requests_by_path = {}
+http_responses_by_status = {}
+
+
+@app.after_request
+def registrar_metricas_http(response):
+    """Registra cada respuesta HTTP para observabilidad local."""
+    global http_requests_total
+
+    ruta = request.path
+    estado = str(response.status_code)
+
+    http_requests_total += 1
+    http_requests_by_path[ruta] = (
+        http_requests_by_path.get(ruta, 0) + 1
+    )
+    http_responses_by_status[estado] = (
+        http_responses_by_status.get(estado, 0) + 1
+    )
+
+    return response
 
 
 @app.get("/health")
 def health():
-    return {
-        "status": "ok"
-    }, 200
+    """Indica que la API está disponible."""
+    return jsonify(
+        {
+            "service": "enagenda-api",
+            "status": "ok",
+        }
+    ), 200
 
 
 @app.get("/metrics")
 def metrics():
-    """Expone la métrica de consultas a invitaciones."""
+    """Expone métricas de consultas de invitaciones y HTTP."""
     return jsonify(
         {
             "metric": "enagenda_invitaciones_consultadas_total",
             "value": invitaciones_consultadas_total,
             "description": "Total de consultas de invitaciones realizadas",
+            "http_requests_total": http_requests_total,
+            "http_requests_by_path": http_requests_by_path,
+            "http_responses_by_status": http_responses_by_status,
         }
     ), 200
 
 
 @app.get("/openapi.yaml")
 def obtener_contrato_openapi():
+    """Entrega el contrato OpenAPI de la aplicación."""
     ruta_contrato = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "docs",
@@ -183,7 +216,7 @@ def api_consultar_invitacion(token):
     except ValueError as error:
         return jsonify(
             {
-                "error": str(error)
+                "error": str(error),
             }
         ), 404
 
@@ -203,13 +236,13 @@ def api_consultar_invitacion(token):
 
 @app.route("/api/v1/invitaciones/<token>", methods=["POST"])
 def api_responder_invitacion(token):
-    """Registra la respuesta del invitado y devuelve la invitación en JSON."""
+    """Registra la respuesta del invitado y devuelve la invitación."""
     datos = request.get_json(silent=True)
 
     if not isinstance(datos, dict) or "estado" not in datos:
         return jsonify(
             {
-                "error": "Debe proporcionar el campo 'estado'."
+                "error": "Debe proporcionar el campo 'estado'.",
             }
         ), 400
 
@@ -222,7 +255,7 @@ def api_responder_invitacion(token):
     else:
         return jsonify(
             {
-                "error": "El estado proporcionado no es válido."
+                "error": "El estado proporcionado no es válido.",
             }
         ), 400
 
@@ -235,7 +268,7 @@ def api_responder_invitacion(token):
     except ValueError as error:
         return jsonify(
             {
-                "error": str(error)
+                "error": str(error),
             }
         ), 404
 
