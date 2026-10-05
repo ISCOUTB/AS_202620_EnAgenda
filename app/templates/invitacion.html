@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Invitación | EnAgenda</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/invitacion.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="page">
+
+        <section class="invitation-card">
+
+            <header class="brand">
+                <div class="logo">E</div>
+
+                <div>
+                    <h1>EnAgenda</h1>
+                    <p>Organiza. Invita. Celebra.</p>
+                </div>
+            </header>
+
+            <div class="divider"></div>
+
+            <section class="invitation-content">
+
+                <p class="label">INVITACIÓN</p>
+
+                <h2>
+                    ¡Hola, {{ invitacion.destinatario }}!
+                </h2>
+
+                <p class="description">
+                    Has recibido una invitación.
+                    Confirma tu asistencia antes de la fecha límite.
+                </p>
+
+                <div class="information">
+
+                    <div class="information-item">
+                        <span>Estado</span>
+
+                        <strong class="status">
+                            {{ invitacion.estado.value }}
+                        </strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span>Responder antes de</span>
+
+                        <strong>
+                            {{ invitacion.fecha_limite_respuesta.strftime('%d/%m/%Y - %I:%M %p') }}
+                        </strong>
+                    </div>
+
+                </div>
+
+                {% if mensaje %}
+                    <div class="message">
+                        {{ mensaje }}
+                    </div>
+                {% endif %}
+
+                <form method="post" class="actions">
+
+                    <button
+                        class="button button-confirm"
+                        type="submit"
+                        name="estado"
+                        value="confirmado"
+                    >
+                        ✓ Confirmar asistencia
+                    </button>
+
+                    <button
+                        class="button button-decline"
+                        type="submit"
+                        name="estado"
+                        value="no_asistire"
+                    >
+                        No asistiré
+                    </button>
+
+                </form>
+
+            </section>
+
+            <footer>
+                <p>Invitación gestionada con EnAgenda</p>
+            </footer>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

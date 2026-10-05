@@ -14,7 +14,7 @@ from flask import (
     Flask,
     jsonify,
     redirect,
-    render_template_string,
+    render_template,
     request,
     url_for,
     send_file,
@@ -33,25 +33,62 @@ app = Flask(__name__)
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
 
-# Contador de consultas realizadas a través de la API
+# Métricas básicas de observabilidad HTTP
+http_requests_total = 0
+http_requests_by_path = {}
+http_responses_by_status = {}
+
+# Métrica específica de consultas de invitaciones
 invitaciones_consultadas_total = 0
+
+@app.before_request
+def registrar_peticion():
+    global http_requests_total
+
+    # Evita que consultar /metrics altere sus propias métricas
+    if request.path == "/metrics":
+        return
+
+    http_requests_total += 1
+
+    http_requests_by_path[request.path] = (
+        http_requests_by_path.get(request.path, 0) + 1
+    )
+
+
+@app.after_request
+def registrar_respuesta(response):
+    if request.path == "/metrics":
+        return response
+
+    codigo = str(response.status_code)
+
+    http_responses_by_status[codigo] = (
+        http_responses_by_status.get(codigo, 0) + 1
+    )
+
+    return response
 
 
 @app.get("/health")
 def health():
     return {
+        "service": "enagenda-api",
         "status": "ok"
     }, 200
 
 
 @app.get("/metrics")
 def metrics():
-    """Expone la métrica de consultas a invitaciones."""
+    """Expone las métricas de observabilidad de EnAgenda."""
     return jsonify(
         {
             "metric": "enagenda_invitaciones_consultadas_total",
             "value": invitaciones_consultadas_total,
             "description": "Total de consultas de invitaciones realizadas",
+            "http_requests_total": http_requests_total,
+            "http_requests_by_path": http_requests_by_path,
+            "http_responses_by_status": http_responses_by_status,
         }
     ), 200
 
@@ -123,51 +160,11 @@ def ver_invitacion(token):
     except ValueError as error:
         return f"<h1>Error</h1><p>{error}</p>", 404
 
-    return render_template_string(
-        """
-        <!doctype html>
-        <html lang="es">
-        <head>
-            <meta charset="utf-8">
-            <title>Invitación</title>
-        </head>
-        <body>
-            <h1>Invitación</h1>
-
-            <p>
-                <strong>Destinatario:</strong>
-                {{ invitacion.destinatario }}
-            </p>
-
-            <p>
-                <strong>Estado:</strong>
-                {{ invitacion.estado.value }}
-            </p>
-
-            <p>
-                <strong>Fecha límite:</strong>
-                {{ invitacion.fecha_limite_respuesta }}
-            </p>
-
-            {% if mensaje %}
-                <p><strong>{{ mensaje }}</strong></p>
-            {% endif %}
-
-            <form method="post">
-                <button type="submit" name="estado" value="confirmado">
-                    Confirmar asistencia
-                </button>
-
-                <button type="submit" name="estado" value="no_asistire">
-                    No asistiré
-                </button>
-            </form>
-        </body>
-        </html>
-        """,
-        invitacion=invitacion,
-        mensaje=mensaje,
-    )
+    return render_template(
+    "invitacion.html",
+    invitacion=invitacion,
+    mensaje=mensaje,
+)
 
 
 @app.route("/api/v1/invitaciones/<token>", methods=["GET"])
@@ -180,15 +177,14 @@ def api_consultar_invitacion(token):
             token=token,
             ahora=datetime.now(),
         )
+        invitaciones_consultadas_total += 1
     except ValueError as error:
         return jsonify(
             {
                 "error": str(error)
             }
         ), 404
-
-    invitaciones_consultadas_total += 1
-
+    
     return jsonify(
         {
             "token": invitacion.token,

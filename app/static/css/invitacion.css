@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f5f7;
+    color: #252525;
+}
+
+.page {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px 20px;
+}
+
+.invitation-card {
+    width: 100%;
+    max-width: 620px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.08);
+
+    overflow: hidden;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 28px 35px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #262626;
+    color: white;
+
+    border-radius: 14px;
+
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.brand h1 {
+    font-size: 22px;
+}
+
+.brand p {
+    color: #777;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.divider {
+    height: 1px;
+    background: #eeeeee;
+}
+
+.invitation-content {
+    padding: 40px 35px;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+
+    color: #777;
+
+    margin-bottom: 12px;
+}
+
+.invitation-content h2 {
+    font-size: 30px;
+
+    margin-bottom: 15px;
+}
+
+.description {
+    color: #666;
+
+    line-height: 1.6;
+
+    margin-bottom: 30px;
+}
+
+.information {
+    background: #f7f7f8;
+
+    border-radius: 14px;
+
+    padding: 5px 20px;
+
+    margin-bottom: 25px;
+}
+
+.information-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    padding: 17px 0;
+
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.information-item:last-child {
+    border-bottom: none;
+}
+
+.information-item span {
+    color: #777;
+}
+
+.status {
+    text-transform: capitalize;
+}
+
+.message {
+    background: #eef8f0;
+
+    border-radius: 10px;
+
+    padding: 14px 16px;
+
+    margin-bottom: 22px;
+
+    text-align: center;
+
+    font-weight: bold;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+}
+
+.button {
+    flex: 1;
+
+    padding: 15px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+.button-confirm {
+    background: #262626;
+    color: white;
+}
+
+.button-decline {
+    background: #eeeeee;
+    color: #333333;
+}
+
+footer {
+    padding: 20px;
+
+    background: #fafafa;
+
+    text-align: center;
+
+    color: #999;
+
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+
+    .invitation-content {
+        padding: 30px 22px;
+    }
+
+    .brand {
+        padding: 24px 22px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .information-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
