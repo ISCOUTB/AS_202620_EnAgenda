@@ -51,77 +51,36 @@ EnAgenda contará inicialmente con las siguientes funcionalidades:
 
 ## Estado actual
 
-Actualmente se encuentra implementado un corte vertical mínimo del módulo de **Invitaciones**.
+Actualmente se encuentra implementado un corte vertical funcional del módulo de **Invitaciones**.
 
 Este flujo permite:
 
-1. Crear una invitación.
-2. Generar un token individual.
-3. Consultar una invitación mediante su token.
-4. Mostrar la invitación mediante una interfaz web.
-5. Responder si el invitado confirma su asistencia o no asistirá.
-6. Persistir la respuesta utilizando un repositorio en memoria.
+1. Seleccionar la cantidad de invitados que tendrá el evento.
+2. Definir una fecha y hora límite para responder las invitaciones.
+3. Registrar el nombre y correo electrónico de cada invitado.
+4. Crear múltiples invitaciones a partir de los datos registrados.
+5. Generar un token único para cada invitación.
+6. Generar un enlace individual para cada invitado.
+7. Consultar una invitación mediante su token.
+8. Mostrar cada invitación mediante una interfaz web.
+9. Permitir que el invitado confirme su asistencia o indique que no asistirá.
+10. Persistir temporalmente las invitaciones y sus respuestas mediante un repositorio en memoria.
 
-El flujo actual atraviesa la interfaz, la lógica de aplicación, el dominio y la infraestructura:
+La aplicación cuenta actualmente con una interfaz web desarrollada con **Flask, Jinja2, HTML y CSS**, mientras que la lógica del módulo de invitaciones mantiene la separación entre aplicación, dominio e infraestructura.
+
+El flujo actual atraviesa las siguientes capas:
 
 ```text
-Interfaz web
-    ↓
+Interfaz web (HTML/CSS + Jinja2)
+        ↓
+Flask (app/web.py)
+        ↓
 GestionarInvitacion
-    ↓
-Invitacion
-    ↓
+        ↓
+Invitacion / EstadoInvitacion
+        ↓
 RepositorioInvitacionesMemoria
 ```
-
-## Requisitos
-
-Para ejecutar el proyecto se necesita:
-
-* Python 3.13 o compatible.
-* pip.
-
-## Instalación
-
-Después de clonar el repositorio, instalar las dependencias con:
-
-```bash
-python -m pip install -r requerimiento.txt
-```
-
-Las dependencias principales son:
-
-* Flask 3.1.3
-* pytest 8.x
-
-## Ejecutar las pruebas
-
-Desde la raíz del proyecto ejecutar:
-
-```bash
-pytest -q
-```
-
-Las pruebas actuales deben finalizar correctamente.
-
-## Ejecutar la aplicación
-
-Desde la raíz del proyecto ejecutar:
-
-```bash
-python app\web.py
-```
-
-Cuando Flask indique que está ejecutándose, abrir en el navegador:
-
-```text
-http://127.0.0.1:5000
-```
-
-La interfaz permite consultar una invitación de prueba y responder:
-
-* Confirmar asistencia.
-* No asistiré.
 
 ## Estructura actual del proyecto
 
@@ -151,14 +110,22 @@ AS_202620_EnAgenda/
 │   └── web.py
 │
 ├── src/
-│   └── invitaciones/
-│       ├── aplicacion/
-│       ├── dominio/
-│       └── infraestructura/
+│   ├── agenda/
+│   ├── compartido/
+│   ├── eventos/
+│   ├── invitaciones/
+│   │   ├── aplicacion/
+│   │   ├── dominio/
+│   │   └── infraestructura/
+│   ├── panel/
+│   ├── presupuesto/
+│   └── tareas/
 │
 ├── tests/
 │   ├── test_api_invitaciones.py
-│   └── test_invitaciones.py
+│   ├── test_contrato_openapi.py
+│   ├── test_invitaciones.py
+│   └── test_operacion.py
 │
 ├── docs/
 │   ├── adr/
@@ -168,15 +135,129 @@ AS_202620_EnAgenda/
 │   ├── c4/
 │   ├── despliegue/
 │   ├── aspectos.md
+│   ├── correcciones.md
 │   ├── evidencia.md
+│   ├── ficha-problema.md
 │   └── ia.md
 │
+├── .dockerignore
+├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
-└── requirements.txt
+└── requerimiento.txt
 ```
+
+## Requisitos
+
+Para ejecutar EnAgenda en un entorno local se necesita:
+
+- Python 3.13 o una versión compatible.
+- pip para la instalación de dependencias.
+- Git para clonar y gestionar el repositorio.
+
+Para el despliegue mediante contenedores se requiere adicionalmente:
+
+- Docker.
+- Docker Compose.
+
+## Instalación
+
+Primero, clonar el repositorio:
+
+```bash
+git clone https://github.com/ISCOUTB/AS_202620_EnAgenda.git
+```
+
+Ingresar a la carpeta del proyecto:
+
+```bash
+cd AS_202620_EnAgenda
+```
+
+Se recomienda crear un entorno virtual para mantener aisladas las dependencias del proyecto:
+
+```bash
+python -m venv .venv
+```
+
+En Windows, activar el entorno virtual con:
+
+```bash
+.venv\Scripts\activate
+```
+
+Instalar las dependencias:
+
+```bash
+python -m pip install -r requerimiento.txt
+```
+
+Las dependencias principales del proyecto incluyen:
+
+- Flask 3.1.3.
+- pytest 8.x.
+
+## Ejecución local
+
+Para iniciar la aplicación:
+
+```bash
+python app/web.py
+```
+
+Por defecto, la aplicación estará disponible en:
+
+```text
+http://127.0.0.1:5000
+```
+
+Para detener el servidor se puede utilizar `Ctrl + C`.
+
+## Pruebas
+
+Para ejecutar las pruebas automatizadas del proyecto:
+
+```bash
+python -m pytest
+```
+
+Las pruebas permiten verificar el comportamiento del módulo de invitaciones, los endpoints de la API y otros aspectos definidos para el proyecto.
+
+## Ejecución con Docker
+
+El proyecto también puede ejecutarse utilizando Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Esto construye la imagen de la aplicación y levanta los servicios definidos en `docker-compose.yml`.
+
+Para detener los contenedores:
+
+```bash
+docker compose down
+```
+
+### Organización de la interfaz web
+
+La interfaz web de EnAgenda se encuentra organizada dentro del directorio `app/`, separando la estructura visual de los estilos.
+
+- `app/templates/`: contiene las plantillas HTML utilizadas por Flask y Jinja2 para representar las diferentes pantallas del flujo de invitaciones.
+- `app/static/css/`: contiene las hojas de estilo CSS asociadas a las plantillas de la interfaz.
+- `app/web.py`: contiene las rutas HTTP de Flask y conecta la interfaz web con los casos de uso del módulo de invitaciones.
+
+Actualmente, las principales vistas de la interfaz son:
+
+- `inicio.html`: permite definir la cantidad de invitados y la fecha y hora límite de respuesta.
+- `invitados.html`: permite registrar el nombre y correo electrónico de cada invitado.
+- `invitacion.html`: muestra la invitación al destinatario y permite registrar su respuesta.
+- `invitacion_creada.html`: muestra la información de una invitación creada.
+- `invitaciones_creadas.html`: presenta las invitaciones generadas y sus respectivos enlaces.
+
+Cada vista cuenta con sus estilos correspondientes dentro de `app/static/css/`.
 
 ## Integración continua
 

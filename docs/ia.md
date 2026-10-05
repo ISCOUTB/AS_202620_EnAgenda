@@ -35,64 +35,13 @@
 |---|---|---|---|---|---|
 | 13/09/2026 | Mermaid | Asistencia en la elaboración y mejora del diseño del diagrama C4 nivel 3 de EnAgenda, buscando una mejor visibilidad de sus elementos. | Ajustes de diseño orientados a mejorar la visibilidad y legibilidad del diagrama, manteniendo su contenido y estructura. | Cambios en los colores y modificaciones en la organización o distribución de los elementos del diagrama. | Se revisó visualmente el diagrama generado y se verificó que los elementos fueran más visibles y legibles, conservando la estructura y organización original. |
 
-<!-- Actualización de documentación -->
-
 | Fecha | Herramienta | Propósito | Propuesta o resultado | Qué se aceptó | Qué se rechazó o modificó | Cómo se verificó |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 27-Sep-2026 | Perplexity | Organizar cómo se va a desplegar y comprobar el funcionamiento del MVP | Se propuso revisar si era mejor usar Render Free Web Service o el servidor del laboratorio; también se planteó usar Docker para la API Flask, agregar un health check, guardar logs, incluir métricas, configurar CI y dejar documentados los costos y la forma de volver atrás si era necesario. | Se decidió usar Render Free de forma temporal para el MVP, comparar las diferentes opciones para la API Flask y dejar registrada como limitación la suspensión del servicio después de un tiempo sin actividad. | Se decidió no tomar la información guardada en memoria como una solución permanente y tampoco agregar una base de datos temporal solo para realizar esta prueba. | Se comprobará que todo funcione haciendo pruebas locales, construyendo el contenedor Docker, ejecutando el pipeline de GitHub Actions, revisando la URL pública, `/health`, `/metrics` y los logs; además, se hará una prueba después de dejar el servicio 16 minutos sin actividad. |
 
-## Registro de IA 04/10/26
 
-### Actualización del uso de Inteligencia Artificial – 04/10/26
-
-Durante esta etapa del proyecto EnAgenda se utilizó Inteligencia Artificial como herramienta de apoyo para el desarrollo de la interfaz del módulo de invitaciones, la revisión del código, la resolución de errores y la integración de cambios realizados por otros integrantes del equipo.
-
-### Elementos agregados
-
-Con apoyo de IA se implementó un nuevo flujo para la creación de invitaciones. El organizador puede establecer una fecha y hora límite de respuesta, indicar la cantidad de invitados y posteriormente registrar el nombre y correo electrónico de cada persona.
-
-Se agregó la creación de múltiples invitaciones con tokens individuales, permitiendo generar un enlace diferente para cada invitado. También se desarrollaron interfaces HTML y CSS para la creación de invitaciones, registro de invitados, visualización de enlaces generados y confirmación o rechazo de asistencia.
-
-La selección de hora se implementó mediante campos separados para hora, minutos y período AM/PM, limitando los minutos disponibles a `00` y `30`.
-
-También se conservaron y revisaron los endpoints `/health` y `/metrics`, junto con las métricas relacionadas con solicitudes HTTP y consultas exitosas de invitaciones.
-
-### Elementos modificados
-
-Inicialmente, la página principal permitía crear directamente una invitación individual. Este comportamiento fue modificado para diferenciar al organizador del invitado y permitir la gestión de varias personas dentro de un mismo proceso.
-
-También se modificó la selección de fecha y hora. Inicialmente se consideró utilizar `datetime-local`, pero se reemplazó por controles independientes para tener mayor control sobre las horas y minutos disponibles.
-
-Las pruebas automatizadas fueron actualizadas debido a que algunas continuaban utilizando el flujo anterior de creación individual. Se adaptaron para comprobar el nuevo proceso de creación de invitaciones.
-
-### Elementos descartados
-
-Se descartó la creación automática de un "Invitado de prueba" al ingresar a la aplicación, debido a que no representaba el comportamiento esperado del sistema.
-
-También se descartó solicitar una fecha y hora diferente para cada invitado. Se decidió establecer una fecha límite global y aplicarla a todas las invitaciones generadas en el mismo proceso.
-
-Se descartó utilizar únicamente `datetime-local` debido a las limitaciones encontradas para restringir los minutos a `00` y `30`.
-
-Durante la integración con `master` también se descartó resolver el conflicto de `app/web.py` conservando únicamente una de las dos versiones. Se realizó una integración manual para mantener tanto el nuevo flujo de invitaciones como los cambios de observabilidad realizados por el equipo.
-
-Finalmente, Render dejó de considerarse como la plataforma objetivo del despliegue actual. Se conservaron los cambios realizados por el equipo para documentar el despliegue institucional mediante Dokploy.
-
-### Funcionalidad pendiente
-
-Se planteó el envío automático de invitaciones por correo electrónico. Por esta razón se agregó la captura del correo de cada invitado; sin embargo, la integración con un servicio de correo no fue implementada durante esta etapa.
-
-Actualmente el sistema genera enlaces individuales que pueden ser copiados y utilizados para acceder a cada invitación. El envío automático queda propuesto como una mejora futura.
-
-### Integración y validación
-
-La IA también fue utilizada para analizar los cambios existentes entre `feature/ui-invitaciones` y `origin/master`. Se identificó un conflicto en `app/web.py`, el cual fue revisado manualmente para conservar los cambios necesarios de ambas ramas.
-
-Después de integrar los cambios y actualizar las pruebas se ejecutó la suite automatizada mediante:
-
-`python -m pytest -q`
-
-El resultado final fue:
-
-`14 passed`
-
-La Inteligencia Artificial se utilizó como herramienta de asistencia para proponer soluciones, analizar errores y apoyar la integración. Las propuestas fueron revisadas antes de incorporarlas, permitiendo decidir cuáles agregar, modificar o descartar según los requisitos de EnAgenda.
+| Fecha | Herramienta | Propósito | Qué se aceptó | Qué se rechazó | Cómo se verificó |
+|---|---|---|---|---|---|
+| 04-Oct-2026 | ChatGPT | Apoyar la actualización de la interfaz y del flujo de creación de invitaciones. | Se aceptó implementar un flujo de creación múltiple de invitaciones, permitiendo definir una fecha y hora límite general, indicar la cantidad de invitados y registrar posteriormente el nombre y correo de cada persona. Se incorporaron las vistas HTML y los estilos CSS necesarios para representar el flujo. | Se rechazó mantener la creación directa de una única invitación desde la página principal, crear automáticamente un "Invitado de prueba" y solicitar una fecha límite diferente para cada invitado. También se descartó utilizar únicamente `datetime-local`, optando por controles separados para hora, minutos y período AM/PM. | Se verificó el flujo mediante la ejecución local de la aplicación y las pruebas automatizadas. La suite ejecutada con `python -m pytest -q` obtuvo como resultado `14 passed`. |
+| 04-Oct-2026 | ChatGPT | Apoyar la integración de los cambios de la interfaz con los cambios existentes en la rama principal del proyecto. | Se aceptó integrar `feature/ui-invitaciones` con `master`, conservando el nuevo flujo de invitaciones y los cambios existentes relacionados con observabilidad, incluyendo `/health` y `/metrics`. | Se rechazó sobrescribir `master`, forzar el `push` o conservar únicamente una de las versiones de `app/web.py`, ya que esto podía eliminar cambios realizados previamente por otros integrantes. | Se actualizaron las referencias del repositorio, se sincronizó `master`, se integró la rama de interfaz y posteriormente se realizó el `push` a `origin/master`. Las pruebas automatizadas se utilizaron para comprobar que la integración conservara el comportamiento esperado. |
+| 04-Oct-2026 | ChatGPT | Apoyar la validación del despliegue de la nueva interfaz y la resolución de errores encontrados durante su ejecución en Dokploy. | Se aceptó reconstruir la aplicación en Dokploy después de integrar los cambios. A partir de los logs del despliegue se identificó la ausencia de `invitados.html`, por lo que se incorporó esta plantilla junto con `invitados.css` para completar el flujo entre la configuración inicial y el registro de los invitados. | Se rechazó modificar la lógica del dominio o `GestionarInvitacion` para solucionar el error, debido a que `TemplateNotFound: invitados.html` correspondía a un recurso faltante de la capa de presentación y no a las reglas del negocio. | Se identificó el error mediante los logs de Dokploy, donde Flask/Jinja2 reportó `TemplateNotFound: invitados.html`. Se comprobó la relación de la ruta con la plantilla requerida y se completaron los archivos necesarios para la interfaz. |

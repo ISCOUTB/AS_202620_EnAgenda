@@ -1,79 +1,104 @@
-#Evidencias de Corte Vertical 
+# Evidencias del Corte Vertical
 
+Este documento reúne las evidencias de instalación, ejecución, pruebas, observabilidad y despliegue del corte vertical implementado para el módulo de Invitaciones de EnAgenda.
 
-## Intalacion de Dependencias
+El flujo validado atraviesa las siguientes partes de la aplicación:
+
 ```text
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> python -m pip install -r requerimiento.txt
-Requirement already satisfied: pytest<9.0,>=8.0 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from -r requerimiento.txt (line 1)) (8.4.2)
-Requirement already satisfied: Flask==3.1.3 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from -r requerimiento.txt (line 2)) (3.1.3)
-Requirement already satisfied: blinker>=1.9.0 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (1.9.0)
-Requirement already satisfied: click>=8.1.3 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (8.5.0)
-Requirement already satisfied: itsdangerous>=2.2.0 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (2.2.0)
-Requirement already satisfied: jinja2>=3.1.2 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (3.1.6)
-Requirement already satisfied: markupsafe>=2.1.1 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (3.0.3)
-Requirement already satisfied: werkzeug>=3.1.0 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from Flask==3.1.3->-r requerimiento.txt (line 2)) (3.1.8)
-Requirement already satisfied: colorama>=0.4 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from pytest<9.0,>=8.0->-r requerimiento.txt (line 1)) (0.4.6)
-Requirement already satisfied: iniconfig>=1 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from pytest<9.0,>=8.0->-r requerimiento.txt (line 1)) (2.3.0)
-Requirement already satisfied: packaging>=20 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from pytest<9.0,>=8.0->-r requerimiento.txt (line 1)) (26.3)
-Requirement already satisfied: pluggy<2,>=1.5 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from pytest<9.0,>=8.0->-r requerimiento.txt (line 1)) (1.6.0)
-Requirement already satisfied: pygments>=2.7.2 in C:\Users\Jeimy Mendez A\AppData\Local\Programs\Python\Python313\Lib\site-packages (from pytest<9.0,>=8.0->-r requerimiento.txt (line 1)) (2.21.0)
+Interfaz web
+    ↓
+Flask (app/web.py)
+    ↓
+GestionarInvitacion
+    ↓
+Invitacion / EstadoInvitacion
+    ↓
+RepositorioInvitacionesMemoria
 ```
 
+## Instalación de dependencias
 
-## Puebas ejecutables desde el terminal
-```text
-## Pruebas ejecutables desde el terminal
-```text
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> pytest -q
-............                                                                 [100%]
-12 passed in 4.11s
-
-## Ejecucion de Aplicacion
-```text
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> python app\web.py
- * Serving Flask app 'web'
- * Debug mode: on
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
-Press CTRL+C to quit
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 144-640-716
- ```
-
-## Evidencia de despliegue y observabilidad
-
-La aplicación fue ejecutada y verificada mediante comandos locales, permitiendo evidenciar paso a paso el proceso de ejecución, despliegue y comprobación de los servicios.
-
-### Verificación de salud de la aplicación
-
-```text
-PS C:\Users\Jeimy Mendez A\Documents\Uni\Arq_Software\AS_202620_EnAgenda> Invoke-WebRequest http://127.0.0.1:5000/health -UseBasicParsing
-
-StatusCode : 200
-Content    : {
-               "status": "ok"
-             }
-
-## Validación local con Docker — 04-Oct-2026
-
-### Construcción y ejecución local
-
-Desde la raíz del repositorio se ejecutó:
+Desde la raíz del proyecto se instalaron las dependencias definidas en `requerimiento.txt`:
 
 ```powershell
-docker compose up --build
+python -m pip install -r requerimiento.txt
+```
+
+La instalación permitió verificar, entre otras, las siguientes dependencias principales:
+
+```text
+pytest 8.4.2
+Flask 3.1.3
+Jinja2 3.1.6
+Werkzeug 3.1.8
+```
+
+Las dependencias se instalaron correctamente y quedaron disponibles para la ejecución y las pruebas del proyecto.
+
+## Ejecución local de la aplicación
+
+La aplicación Flask puede iniciarse desde la raíz del repositorio mediante:
+
+```powershell
+python app\web.py
+```
+
+Durante la validación local, Flask inició correctamente en el puerto `5000`:
+
+```text
+* Serving Flask app 'web'
+* Debug mode: on
+* Running on http://127.0.0.1:5000
+```
+
+Esto permitió acceder a la interfaz web y comprobar manualmente el flujo implementado para la gestión de invitaciones.
+
+## Validación del corte vertical de Invitaciones
+
+Se verificó el flujo funcional implementado para el módulo de Invitaciones.
+
+El organizador puede:
+
+1. Definir la cantidad de invitados.
+2. Establecer una fecha y hora límite de respuesta.
+3. Registrar el nombre y correo electrónico de cada invitado.
+4. Crear múltiples invitaciones.
+5. Obtener un enlace individual para cada invitado.
+
+Cada invitación genera un token individual que permite acceder a su información.
+
+El invitado puede utilizar el enlace generado para consultar la invitación y registrar su respuesta de asistencia como `Confirmado` o `No asistiré`, respetando las reglas de vigencia definidas por el dominio.
+
+La interfaz utilizada para este flujo está implementada mediante Flask, Jinja2, HTML y CSS.
+
+## Pruebas automatizadas
+
+Después de actualizar el flujo de invitaciones y realizar la integración de los cambios, se ejecutó la suite automatizada mediante:
+
+```powershell
+python -m pytest -q
 ```
 
 Resultado validado:
 
 ```text
-La imagen Docker fue construida.
-El contenedor inició correctamente.
-Gunicorn quedó escuchando en el puerto 5000.
+14 passed
 ```
 
-### Health check local
+Las pruebas incluyen verificaciones relacionadas con:
+
+- Reglas del módulo de Invitaciones.
+- Operaciones HTTP de invitaciones.
+- Contrato OpenAPI.
+- Comportamiento del corte vertical implementado.
+
+El resultado confirma que las pruebas automatizadas existentes finalizaron correctamente después de la integración de los cambios.
+
+## Verificación de salud de la aplicación
+
+La aplicación dispone del endpoint `/health` para comprobar el estado del servicio.
+
+Durante la ejecución local se realizó la consulta:
 
 ```powershell
 curl.exe -i http://localhost:5000/health
@@ -85,26 +110,19 @@ Resultado:
 HTTP/1.1 200 OK
 ```
 
-```json
-{
-  "service": "enagenda-api",
-  "status": "ok"
-}
-```
+La respuesta indicó que el servicio se encontraba disponible.
 
-### Métricas locales
+## Verificación de métricas
+
+La aplicación también dispone del endpoint `/metrics`.
+
+La consulta local se realizó mediante:
 
 ```powershell
 curl.exe -i http://localhost:5000/metrics
 ```
 
-Resultado:
-
-```text
-HTTP/1.1 200 OK
-```
-
-La respuesta expone:
+Se obtuvo una respuesta HTTP satisfactoria y se verificó la exposición de métricas relacionadas con la aplicación, entre ellas:
 
 ```text
 enagenda_invitaciones_consultadas_total
@@ -113,21 +131,37 @@ http_requests_by_path
 http_responses_by_status
 ```
 
-### Pruebas automatizadas
+Estas métricas permiten observar solicitudes HTTP y operaciones relacionadas con la consulta de invitaciones.
+
+## Validación local con Docker
+
+Para comprobar que la aplicación podía ejecutarse mediante contenedores, desde la raíz del repositorio se utilizó:
 
 ```powershell
-python -m pytest -q
+docker compose up --build
 ```
 
-Resultado esperado y validado:
+Durante la validación:
 
 ```text
-14 passed
+La imagen Docker fue construida correctamente.
+El contenedor inició correctamente.
+La aplicación quedó disponible en el puerto 5000.
 ```
 
-## Despliegue en Dokploy — 04-Oct-2026
+Posteriormente se verificaron los endpoints `/health` y `/metrics` sobre la aplicación ejecutada mediante Docker.
 
-### Configuración institucional
+Para detener los contenedores se puede utilizar:
+
+```powershell
+docker compose down
+```
+
+## Despliegue en Dokploy
+
+### Configuración del despliegue
+
+El proyecto fue desplegado utilizando la plataforma institucional Dokploy.
 
 | Elemento | Valor |
 |---|---|
@@ -137,14 +171,17 @@ Resultado esperado y validado:
 | Servicio | `sistema` |
 | Repositorio | `ISCOUTB/AS_202620_EnAgenda` |
 | Rama | `master` |
-| Activación | `On Push` |
+| Método de despliegue | Reconstrucción y despliegue desde Dokploy |
 | Archivo Compose | `./docker-compose.yml` |
 | Puerto interno | `5000` |
 
+El despliegue automático no se considera activo en la configuración documentada actualmente. Después de integrar y enviar cambios a `master`, la composición puede reconstruirse desde Dokploy para obtener la versión actualizada del repositorio.
+
 ### Resultado del despliegue
 
-Dokploy clonó el repositorio, construyó la imagen Docker e inició el
-contenedor. Los logs registraron:
+Dokploy obtuvo el código del repositorio, construyó la imagen definida para EnAgenda y levantó la aplicación mediante Docker Compose.
+
+Durante el proceso se registró la construcción e inicio del contenedor:
 
 ```text
 Image enagenda-sistema-m7pzgi-enagenda Built
@@ -152,12 +189,76 @@ Container enagenda-sistema-m7pzgi-enagenda-1 Started
 Docker Compose Deployed: ✅
 ```
 
-El panel de Dokploy mostró el estado `Done` para el despliegue del commit
-correspondiente a la adaptación de Render a Dokploy.
+La aplicación desplegada permitió acceder a la interfaz web de EnAgenda y continuar la validación del flujo de Invitaciones.
 
-### Pendiente
+## Integración de la nueva interfaz
 
-- Crear o asignar un host válido en Dokploy.
-- Validar la URL pública.
-- Validar `/health` y `/metrics` desde internet.
-- Configurar HTTPS cuando exista un dominio válido.
+La interfaz del módulo de Invitaciones fue desarrollada e integrada desde la rama:
+
+```text
+feature/ui-invitaciones
+```
+
+Antes de integrarla, la rama `master` fue actualizada con los cambios existentes en el repositorio remoto.
+
+Posteriormente se realizó la integración de la interfaz y se enviaron los cambios a `origin/master`.
+
+La actualización incorporó las vistas y estilos necesarios para representar el flujo de invitaciones, además de conservar los cambios previamente existentes en la aplicación.
+
+El flujo visual contempla:
+
+```text
+Configuración de invitaciones
+        ↓
+Registro de invitados
+        ↓
+Creación de invitaciones
+        ↓
+Generación de enlaces individuales
+        ↓
+Consulta de la invitación
+        ↓
+Confirmación o rechazo de asistencia
+```
+
+## Corrección identificada durante el despliegue
+
+Después de reconstruir la aplicación en Dokploy, la interfaz principal cargó correctamente. Sin embargo, al continuar con el proceso de creación de invitaciones se produjo un error HTTP `500`.
+
+Los logs de la aplicación permitieron identificar:
+
+```text
+jinja2.exceptions.TemplateNotFound: invitados.html
+```
+
+El error se originaba porque `app/web.py` intentaba renderizar la plantilla `invitados.html`, pero esta no se encontraba disponible dentro de `app/templates/`.
+
+La solución consistió en completar la capa de presentación incorporando:
+
+```text
+app/templates/invitados.html
+app/static/css/invitados.css
+```
+
+No fue necesario modificar las reglas del dominio ni el caso de uso `GestionarInvitacion`, debido a que el problema correspondía a un recurso faltante de la interfaz web.
+
+Esta validación permitió comprobar la importancia de revisar tanto las pruebas automatizadas como el comportamiento real de la aplicación después del despliegue.
+
+## Estado actual de la evidencia
+
+A partir de las verificaciones realizadas se cuenta con evidencia de:
+
+- Instalación correcta de las dependencias.
+- Ejecución local de la aplicación Flask.
+- Funcionamiento del corte vertical del módulo de Invitaciones.
+- Creación múltiple de invitaciones.
+- Generación de tokens y enlaces individuales.
+- Interfaz web para el flujo de invitaciones.
+- Ejecución satisfactoria de las pruebas automatizadas.
+- Endpoints de salud y métricas.
+- Construcción y ejecución mediante Docker.
+- Despliegue de la aplicación mediante Dokploy.
+- Integración de la interfaz con la rama `master`.
+- Identificación y corrección de un error de plantilla durante la validación del despliegue.
+
+La evidencia obtenida respalda el corte vertical actual del módulo de Invitaciones y su integración dentro de la arquitectura de monolito modular seleccionada para EnAgenda.

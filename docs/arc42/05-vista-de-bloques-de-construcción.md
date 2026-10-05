@@ -1,33 +1,79 @@
 # 5. Vista de Bloques de Construcción
 
-
-
 ## 5.1 Descomposición del sistema
 
-EnAgenda se organiza en diferentes módulos funcionales dentro de
-`docs/src`. Actualmente se encuentran definidos los siguientes bloques:
+EnAgenda está organizado como un monolito modular. Los módulos funcionales del sistema se encuentran dentro de `src/`.
 
-- Eventos
-- Invitaciones
-- agenda
-- compartido
-- panel
-- presupuesto
-- tareas
+Actualmente se identifican los siguientes módulos:
 
-Estos bloques representan las áreas funcionales previstas para el sistema.
-El nivel de implementación puede variar entre los diferentes módulos.
+- Eventos.
+- Invitaciones.
+- Tareas.
+- Agenda.
+- Presupuesto.
+- Panel de seguimiento.
+- Compartido.
 
-A nivel de arquitectura, el sistema contempla una aplicación web, un
-portal para invitados, un backend encargado de procesar las solicitudes
-y una base de datos, de acuerdo con el C4 nivel 2.
+Estos bloques representan las principales áreas funcionales previstas para EnAgenda. El nivel de implementación puede variar entre los diferentes módulos.
 
-## 5.2 Bloque de Invitaciones
+La aplicación cuenta además con una capa de entrada web ubicada en `app/`, implementada con Flask. Esta capa recibe las solicitudes HTTP, renderiza las vistas mediante Jinja2 y conecta la interfaz con los casos de uso de los módulos correspondientes.
 
-El bloque de Invitaciones es el módulo que actualmente cuenta con una
-implementación identificable en el código. Se encuentra en:
+En el estado actual del proyecto, el módulo de Invitaciones constituye el corte vertical funcional con mayor nivel de implementación.
 
-`docs/src/Invitaciones/`
+El flujo principal implementado puede representarse de la siguiente manera:
+
+```text
+Usuario
+   ↓
+Interfaz web
+HTML + CSS + Jinja2
+   ↓
+app/web.py
+Flask
+   ↓
+GestionarInvitacion
+   ↓
+Invitacion / EstadoInvitacion
+   ↓
+RepositorioInvitacionesMemoria
+```
+
+## 5.2 Bloque de entrada web
+
+La capa de entrada web se encuentra en:
+
+`app/`
+
+Su archivo principal es:
+
+`app/web.py`
+
+Este bloque tiene como responsabilidades:
+
+- Definir las rutas HTTP de la aplicación.
+- Recibir los datos enviados mediante formularios.
+- Realizar validaciones relacionadas con la entrada de datos.
+- Renderizar las plantillas HTML mediante Jinja2.
+- Exponer los endpoints HTTP de la API implementada.
+- Delegar las operaciones relacionadas con invitaciones en `GestionarInvitacion`.
+
+Las plantillas utilizadas por la interfaz se encuentran en:
+
+`app/templates/`
+
+Los estilos de la interfaz se encuentran en:
+
+`app/static/css/`
+
+La capa web actúa como punto de entrada al sistema, pero no debe concentrar las reglas principales del dominio ni conocer los detalles internos del mecanismo de persistencia.
+
+## 5.3 Bloque de Invitaciones
+
+El bloque de Invitaciones es el módulo que actualmente cuenta con una implementación funcional identificable en el código.
+
+Se encuentra en:
+
+`src/invitaciones/`
 
 Está organizado en tres partes principales:
 
@@ -37,33 +83,34 @@ Está organizado en tres partes principales:
 
 ### Aplicación
 
-Ruta:
+Ruta principal:
 
-`docs/src/Invitaciones/aplicacion/gestionar_invitacion.py`
+`src/invitaciones/aplicacion/gestionar_invitacion.py`
 
-Su responsabilidad es coordinar las operaciones relacionadas con la
-gestión de invitaciones. Esta capa utiliza las entidades del dominio y
-el repositorio para realizar las operaciones correspondientes.
+La capa de aplicación contiene `GestionarInvitacion`.
+
+Su responsabilidad es coordinar los casos de uso relacionados con la gestión de invitaciones, utilizando las reglas definidas por el dominio y el mecanismo de almacenamiento proporcionado por infraestructura.
+
+La capa web delega en este componente operaciones como la creación, consulta y respuesta de las invitaciones.
 
 ### Dominio
 
 Ruta:
 
-`docs/src/Invitaciones/dominio/invitacion.py`
+`src/invitaciones/dominio/invitaciones.py`
 
-Contiene la entidad `Invitacion` y el enumerado `EstadoInvitacion`.
+El dominio contiene la entidad `Invitacion` y el enumerado `EstadoInvitacion`.
 
-La entidad representa una invitación y contiene:
+La entidad representa una invitación y maneja información como:
 
-- token de identificación;
-- destinatario;
-- fecha límite de respuesta;
-- estado de la invitación.
+- Token de identificación.
+- Destinatario.
+- Fecha límite de respuesta.
+- Estado de la invitación.
 
-También contiene las reglas relacionadas con la creación de una
-invitación, la comprobación de su vigencia y el cambio de estado.
+También concentra las reglas relacionadas con la creación de una invitación, la comprobación de su vigencia y la actualización de su estado.
 
-Los estados definidos son:
+Los estados definidos actualmente son:
 
 - `PENDIENTE`
 - `CONFIRMADO`
@@ -73,50 +120,87 @@ Los estados definidos son:
 
 Ruta:
 
-`docs/src/Invitaciones/infraestructura/repositorio_memoria.py`
+`src/invitaciones/infraestructura/repositorio_memoria.py`
 
-Contiene `RepositorioInvitacionesMemoria`, encargado de almacenar las
-invitaciones en memoria y recuperarlas mediante su token.
+Esta capa contiene `RepositorioInvitacionesMemoria`.
 
-## 5.3 Relación entre los bloques
+Su responsabilidad es almacenar temporalmente las invitaciones y permitir su recuperación mediante el token correspondiente.
 
-Dentro del módulo de Invitaciones, la aplicación coordina las operaciones
-utilizando el dominio y el mecanismo de persistencia proporcionado por
-infraestructura.
+La implementación actual utiliza almacenamiento en memoria. Por esta razón, los datos almacenados no sobreviven al reinicio de la aplicación.
 
-El flujo principal puede representarse de la siguiente manera:
+Este mecanismo permite mantener separadas las reglas del dominio de los detalles concretos de persistencia y podrá ser sustituido posteriormente por una solución permanente.
 
-Aplicación → Dominio
+## 5.4 Relación entre los bloques
 
-Aplicación → Infraestructura
+El flujo implementado para la gestión de invitaciones atraviesa los bloques de entrada web, aplicación, dominio e infraestructura.
 
-La aplicación solicita las operaciones necesarias, el dominio aplica las
-reglas de la entidad `Invitacion` y la infraestructura permite guardar y
-buscar las invitaciones.
+La relación principal es:
 
-## 5.4 Correspondencia entre arquitectura y código
+```text
+app/web.py
+    ↓
+GestionarInvitacion
+    ↓
+Invitacion / EstadoInvitacion
+    ↓
+RepositorioInvitacionesMemoria
+```
 
-La correspondencia identificada entre los bloques y el código es:
+`app/web.py` recibe las solicitudes HTTP y delega las operaciones del negocio en `GestionarInvitacion`.
+
+`GestionarInvitacion` coordina los casos de uso y utiliza los elementos del dominio para aplicar las reglas correspondientes.
+
+El dominio representa las invitaciones, sus estados y sus reglas.
+
+`RepositorioInvitacionesMemoria` proporciona el mecanismo actual para guardar y recuperar las invitaciones.
+
+Esta separación permite que la interfaz web y la infraestructura puedan evolucionar sin trasladar sus responsabilidades al dominio.
+
+## 5.5 Correspondencia entre arquitectura y código
+
+La correspondencia actual entre los principales bloques arquitectónicos y el código es:
 
 | Bloque | Responsabilidad | Código |
 |---|---|---|
-| Invitaciones - Aplicación | Coordinar la gestión de invitaciones | `docs/src/Invitaciones/aplicacion/gestionar_invitacion.py` |
-| Invitaciones - Dominio | Representar la invitación y sus reglas | `docs/src/Invitaciones/dominio/invitacion.py` |
-| Invitaciones - Infraestructura | Guardar y buscar invitaciones en memoria | `docs/src/Invitaciones/infraestructura/repositorio_memoria.py` |
+| Entrada web | Recibir solicitudes HTTP, renderizar vistas y delegar casos de uso | `app/web.py` |
+| Plantillas web | Representar las pantallas del flujo de invitaciones | `app/templates/` |
+| Estilos web | Definir la presentación visual de las vistas | `app/static/css/` |
+| Invitaciones - Aplicación | Coordinar los casos de uso de invitaciones | `src/invitaciones/aplicacion/gestionar_invitacion.py` |
+| Invitaciones - Dominio | Representar las invitaciones, sus estados y reglas | `src/invitaciones/dominio/invitaciones.py` |
+| Invitaciones - Infraestructura | Guardar y recuperar invitaciones temporalmente | `src/invitaciones/infraestructura/repositorio_memoria.py` |
 
-Los demás módulos identificados en `docs/src` forman parte de la
-estructura del proyecto, pero no se les atribuyen responsabilidades
-específicas en esta sección cuando estas no están respaldadas por una
-implementación comprobada.
+Los demás módulos presentes en `src/` forman parte de la estructura modular prevista para EnAgenda.
 
-## 5.5 Relación con C4
+No se atribuyen en esta sección responsabilidades de implementación que todavía no estén respaldadas por código funcional.
 
-La vista de bloques complementa el C4 nivel 2. El C4 identifica los
-contenedores principales del sistema: Aplicación Web, Portal del
-Invitado, API/Backend y Base de Datos.
+## 5.6 Relación con C4
 
-La estructura interna mostrada en esta sección permite relacionar el
-backend con los módulos que implementan las funcionalidades del sistema.
-En el estado actual del proyecto, el módulo de Invitaciones es el bloque
-que cuenta con una implementación interna comprobable mediante sus capas
-de aplicación, dominio e infraestructura.
+La vista de bloques de construcción complementa los diagramas C4 al mostrar con mayor detalle cómo se organiza internamente la implementación actual de EnAgenda.
+
+En el corte vertical del módulo de Invitaciones, la aplicación Flask funciona como punto de entrada web y se comunica con la capa de aplicación mediante `GestionarInvitacion`.
+
+La capa de aplicación utiliza el dominio de Invitaciones y la infraestructura proporciona actualmente un repositorio en memoria.
+
+Por lo tanto, la implementación actual no depende de un contenedor independiente de API/Backend ni de una base de datos externa. La aplicación se despliega como una única unidad, de acuerdo con la decisión de utilizar un monolito modular.
+
+La relación entre la vista C4 y el código debe mantenerse alineada con esta implementación:
+
+```text
+Aplicación EnAgenda
+│
+├── Entrada web
+│   └── Flask + Jinja2
+│
+└── Módulo de Invitaciones
+    ├── Aplicación
+    │   └── GestionarInvitacion
+    │
+    ├── Dominio
+    │   ├── Invitacion
+    │   └── EstadoInvitacion
+    │
+    └── Infraestructura
+        └── RepositorioInvitacionesMemoria
+```
+
+Si en una evolución posterior se incorpora una base de datos permanente u otros componentes desplegables independientes, los diagramas C4 y esta vista deberán actualizarse para reflejar la nueva arquitectura.

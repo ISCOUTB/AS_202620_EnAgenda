@@ -40,7 +40,17 @@ arquitectónicos utilizados en la documentación de EnAgenda.
 | **`GestionarInvitacion`** | Componente de la capa de aplicación encargado de coordinar las operaciones relacionadas con la gestión de invitaciones. |
 | **Repositorio de invitaciones** | Componente encargado de almacenar y recuperar invitaciones mediante su token. |
 | **Repositorio en memoria** | Implementación de persistencia utilizada actualmente para almacenar temporalmente las invitaciones durante la ejecución del sistema. |
-| **Server Action** | Mecanismo de Next.js utilizado como punto de entrada para procesar determinadas operaciones provenientes de la interfaz web y delegarlas a los módulos correspondientes. |
 | **Responsive** | Característica de la aplicación web que permite adaptar su interfaz a diferentes tamaños de pantalla, incluyendo computadores y dispositivos móviles. |
 | **HTTPS** | Protocolo utilizado para proteger la comunicación entre los usuarios y la aplicación web. |
 | **EC** | Identificador utilizado para los escenarios de calidad de EnAgenda, como EC-01 de aislamiento entre invitaciones y EC-05 de rendimiento de operaciones principales. |
+| **Server Action** | Mecanismo de Next.js evaluado inicialmente como alternativa para procesar operaciones provenientes de la interfaz web. No forma parte de la implementación actual de EnAgenda, que utiliza Flask como punto de entrada web. |
+| **Flask** | Framework web de Python utilizado como punto de entrada de EnAgenda. Define las rutas HTTP y conecta la interfaz web con los casos de uso de los módulos. |
+| **Jinja2** | Motor de plantillas utilizado junto con Flask para generar las vistas HTML de la aplicación. |
+| **Monolito modular** | Estilo arquitectónico seleccionado para EnAgenda. El sistema se construye y despliega como una única aplicación, pero se organiza internamente en módulos de negocio con responsabilidades y límites definidos. |
+| **GestionarInvitacion** | Componente de la capa de aplicación del módulo de Invitaciones encargado de coordinar los casos de uso relacionados con la gestión de invitaciones. |
+| **RepositorioInvitacionesMemoria** | Implementación actual de persistencia del módulo de Invitaciones. Almacena temporalmente las invitaciones en memoria, por lo que la información se pierde al reiniciar la aplicación. |
+| **Token de invitación** | Identificador único asociado a una invitación que permite consultarla mediante un enlace individual. |
+| **Endpoint** | Ruta HTTP expuesta por la aplicación Flask para acceder a una funcionalidad específica. Los endpoints de EnAgenda forman parte de la misma aplicación y no constituyen un servicio independiente. |
+| **Docker** | Tecnología de contenedores utilizada para empaquetar EnAgenda junto con las dependencias necesarias para su ejecución. |
+| **Docker Compose** | Herramienta utilizada para definir y ejecutar la configuración de contenedores de EnAgenda mediante el archivo `docker-compose.yml`. |
+| **Dokploy** | Plataforma utilizada para gestionar el despliegue de EnAgenda mediante contenedores. |
