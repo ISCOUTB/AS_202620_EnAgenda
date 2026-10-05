@@ -1,55 +1,101 @@
 # 7. Vista de despliegue
 
-## 7.1 Nivel 1: infraestructura
+## Entorno local
+
+En desarrollo, EnAgenda se ejecuta como una aplicación Flask contenida con
+Docker.
 
 ```text
-Usuario externo
-      │ HTTPS
-      ▼
-Render Free Web Service
-┌──────────────────────────────────────────────┐
-│ Contenedor Docker                            │
-│ - Python 3.13                                │
-│ - Gunicorn                                   │
-│ - Aplicación Flask                           │
-│ - Módulo Invitaciones                        │
-│ - GET /health                                │
-│ - GET /metrics                               │
-│ - Logs JSON hacia salida estándar            │
-└──────────────────────────────────────────────┘
-      │
-      ▼
-Repositorio en memoria
-(no persistente; se pierde durante reinicio)
+Desarrollador
+    │
+    │ http://localhost:5000
+    ▼
+Docker Compose
+    │
+    ▼
+Contenedor EnAgenda
+    │
+    ├── Gunicorn
+    ├── Aplicación Flask
+    ├── Módulo de Invitaciones
+    ├── /health
+    ├── /metrics
+    └── Repositorio en memoria
 ```
 
-## 7.2 Piezas y ubicación
+La imagen se construye con el `Dockerfile`. `docker-compose.yml` publica el
+puerto `5000` y carga variables desde `.env`. El archivo `.env` se crea a
+partir de `.env.example` y no se versiona.
 
-| Pieza | Ubicación | Tecnología | Estado |
-|---|---|---|---|
-| API web | Render Free Web Service | Docker, Python, Flask y Gunicorn | Implementada |
-| Módulo de Invitaciones | Dentro del contenedor de la API | Python | Implementada |
-| Persistencia | Memoria del proceso | Repositorio en memoria | Temporal; no durable |
-| Integración continua | GitHub Actions | Workflow YAML | Implementada |
-| Logs | Panel de logs de Render | JSON por salida estándar | Implementada |
-| Métricas | Endpoint `/metrics` | JSON en memoria | Implementada |
-| Secretos | Variables de entorno de Render | `SECRET_KEY` | Implementada |
-| Base de datos | No implementada | — | Deuda técnica |
+## Entorno institucional
 
-## 7.3 Restricciones y riesgos
+El despliegue del MVP se realiza en Dokploy institucional.
 
-Render Free puede suspender el servicio tras 15 minutos de inactividad. La
-primera solicitud posterior puede tardar mientras el servicio se reactiva. La
-limitación es aceptada para el MVP y se mide en
-[medicion-render.md](../despliegue/medicion-render.md).
+```text
+GitHub: ISCOUTB/AS_202620_EnAgenda
+    │
+    │ push a master
+    ▼
+Dokploy
+    │
+    ├── Proyecto: enagenda
+    ├── Entorno: production
+    ├── Servicio: sistema
+    ├── Compose: ./docker-compose.yml
+    └── Variables gestionadas en Dokploy
+    │
+    ▼
+Contenedor EnAgenda
+    │
+    ├── Dockerfile
+    ├── Python 3.13 slim
+    ├── Gunicorn
+    ├── Flask
+    ├── Puerto interno 5000
+    ├── /health
+    └── /metrics
+```
 
-La persistencia en memoria pierde invitaciones durante reinicios, redeploys o
-caídas del proceso. Esta limitación no es adecuada para una versión productiva
-y se registra como deuda técnica.
+Dokploy está conectado al repositorio GitHub en la rama `master` con activación
+`On Push`. Cuando se envía un commit a esa rama, Dokploy clona el repositorio,
+construye la imagen y ejecuta el servicio definido en `docker-compose.yml`.
 
-## 7.4 Reversión
+## Estado validado
 
-La aplicación se empaqueta en un contenedor Docker independiente del proveedor.
-La reversión consiste en desplegar el mismo commit e imagen en el servidor del
-laboratorio, siguiendo el
-[procedimiento documentado](../despliegue/procedimiento-despliegue.md).
+El despliegue institucional fue completado correctamente. Los logs confirmaron:
+
+```text
+Image enagenda-sistema-m7pzgi-enagenda Built
+Container enagenda-sistema-m7pzgi-enagenda-1 Started
+Docker Compose Deployed: ✅
+```
+
+## Exposición pública
+
+El servicio se encuentra desplegado, pero el host o URL pública aún debe
+configurarse mediante la pestaña **Domains** de Dokploy.
+
+La configuración prevista es:
+
+- Servicio: `enagenda`.
+- Puerto interno: `5000`.
+- Ruta pública: `/`.
+- Ruta interna: `/`.
+- HTTPS: pendiente de dominio válido o configuración institucional.
+
+## Validación operativa
+
+La disponibilidad se validará con:
+
+- `GET /health`, que debe responder `HTTP 200`.
+- `GET /metrics`, que debe responder `HTTP 200`.
+- Revisión de logs en Dokploy.
+- Confirmación del estado del contenedor en ejecución.
+
+## Aspectos pendientes
+
+- Host o dominio público.
+- Validación externa de `/health` y `/metrics`.
+- Configuración de HTTPS o certificado.
+- Límites institucionales de CPU, RAM, almacenamiento y tráfico.
+- Mecanismo de rollback habilitado para el equipo.

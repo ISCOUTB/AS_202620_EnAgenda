@@ -1,80 +1,114 @@
-# Procedimiento de despliegue y reversión
+# Procedimiento de despliegue — EnAgenda en Dokploy
 
-## Requisitos
+## Configuración confirmada
 
-- Repositorio clonado.
-- Docker Desktop o Docker Engine para la validación local.
-- Archivo `.env` creado a partir de `.env.example`.
-- Acceso a Render.
-- Variable `SECRET_KEY` configurada únicamente en el entorno de Render.
+| Elemento | Valor |
+|---|---|
+| Plataforma | Dokploy institucional |
+| Proyecto | `enagenda` |
+| Entorno | `production` |
+| Servicio | `sistema` |
+| Repositorio | `ISCOUTB/AS_202620_EnAgenda` |
+| Rama | `master` |
+| Activación | `On Push` |
+| Archivo Compose | `./docker-compose.yml` |
+| Puerto interno de la aplicación | `5000` |
 
-## Preparar el entorno local
+## Prerrequisitos
 
-Desde la raíz del repositorio:
+- Acceso al proyecto EnAgenda en Dokploy.
+- Repositorio GitHub actualizado.
+- Pruebas automatizadas aprobadas localmente.
+- `Dockerfile`, `docker-compose.yml`, `.dockerignore` y `.env.example`
+  disponibles en el repositorio.
+- Variables de entorno configuradas en Dokploy.
+- `.env` ausente del repositorio.
 
-```bash
-cp .env.example .env
-```
+## Despliegue en Dokploy
 
-En Windows PowerShell:
+1. Ejecutar las pruebas automatizadas:
 
-```powershell
-Copy-Item .env.example .env
-```
-
-Editar `.env` y definir una clave local de desarrollo.
-
-## Ejecutar y verificar localmente
-
-```bash
-docker compose up --build
-```
-
-En otra terminal:
-
-```bash
-curl -i http://localhost:5000/health
-curl -i http://localhost:5000/metrics
-pytest -q
-```
-
-Para detener:
-
-```bash
-docker compose down
-```
-
-## Despliegue en Render
-
-1. Hacer push del código a la rama `main`.
-2. Confirmar que el workflow de GitHub Actions finalice en verde.
-3. Crear un servicio mediante el archivo `render.yaml`.
-4. Seleccionar el plan gratuito.
-5. Configurar `SECRET_KEY` en las variables de entorno de Render.
-6. Esperar a que Render construya y despliegue el contenedor.
-7. Verificar las URL públicas:
-   - `/`
-   - `/health`
-   - `/metrics`
-8. Revisar en Render un log JSON generado por una solicitud.
-
-## Verificación externa
-
-Se debe abrir la URL desde una red diferente a la de la universidad, por ejemplo
-datos móviles o una red doméstica. Se verifica que `GET /health` y
-`GET /metrics` respondan HTTP 200.
-
-## Reversión al servidor del laboratorio
-
-1. Identificar el último commit estable.
-2. Clonar el repositorio en el servidor del laboratorio.
-3. Crear un archivo `.env` únicamente en el servidor.
-4. Ejecutar:
-
-   ```bash
-   docker compose up -d --build
+   ```powershell
+   python -m pytest -q
    ```
 
-5. Configurar el puerto o proxy público que indique el laboratorio.
-6. Verificar `GET /health`, `GET /metrics` y `pytest -q`.
-7. Actualizar README y evidencia con la nueva URL pública.
+2. Verificar los cambios del repositorio:
+
+   ```powershell
+   git status
+   ```
+
+3. Crear un commit con los cambios validados.
+
+4. Enviar el commit a la rama `master`:
+
+   ```powershell
+   git push origin master
+   ```
+
+5. Dokploy detecta el cambio mediante la activación `On Push`.
+
+6. Dokploy clona el repositorio y ejecuta:
+
+   ```text
+   docker compose -p [nombre-del-servicio] --env-file .env \
+   -f ./docker-compose.yml up -d --build --remove-orphans
+   ```
+
+7. Confirmar en la pestaña **Deployments** que el estado sea `Done`.
+
+8. Revisar los logs del despliegue y confirmar que aparezcan mensajes de imagen
+   construida y contenedor iniciado.
+
+9. Confirmar en la pestaña **Containers** que el contenedor esté en ejecución.
+
+10. Cuando se configure un host, asociarlo al servicio `enagenda`, usar el
+    puerto interno `5000`, la ruta `/` y mantener HTTPS desactivado hasta contar
+    con un dominio válido y configuración de certificado.
+
+11. Después de crear o cambiar el dominio, realizar un nuevo despliegue.
+
+12. Validar la aplicación por URL pública:
+
+    ```text
+    GET /health
+    GET /metrics
+    GET /
+    ```
+
+## Variables de entorno
+
+Las variables se configuran en Dokploy, no en el repositorio. Como mínimo:
+
+```text
+PORT=5000
+LOG_LEVEL=INFO
+SECRET_KEY=[valor secreto configurado en Dokploy]
+```
+
+No se debe publicar el valor de `SECRET_KEY` en archivos, commits, evidencias,
+capturas o documentación.
+
+## Validación local previa
+
+Antes de enviar cambios a Dokploy:
+
+```powershell
+docker compose up --build
+curl.exe -i http://localhost:5000/health
+curl.exe -i http://localhost:5000/metrics
+python -m pytest -q
+```
+
+## Reversión
+
+1. Identificar el último commit estable y el último despliegue saludable en la
+   pestaña **Deployments** de Dokploy.
+2. Usar el historial de despliegues o el mecanismo de redeploy disponible en
+   Dokploy, si está habilitado.
+3. Si la plataforma no permite rollback, restaurar el último commit estable en
+   `master` y hacer `push`.
+4. Si se requiere una recuperación manual, ejecutar el `Dockerfile` y
+   `docker-compose.yml` en un servidor institucional.
+5. Configurar las variables de entorno en el destino.
+6. Validar `/health`, `/metrics` y las pruebas automatizadas.

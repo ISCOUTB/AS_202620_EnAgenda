@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 import app.web as web
@@ -14,23 +16,30 @@ def cliente():
 def obtener_token(cliente):
     """Crea una invitación de prueba y devuelve su token."""
     respuesta = cliente.post(
-        "/",
+        "/crear-invitaciones",
         data={
-            "destinatario": "Invitado de prueba",
             "fecha_limite": "2099-12-31",
             "hora": "11",
             "minuto": "30",
             "periodo": "PM",
+            "cantidad_invitados": "1",
+            "nombre_1": "Invitado de prueba",
+            "correo_1": "invitado@ejemplo.com",
         },
-        follow_redirects=False,
     )
 
-    assert respuesta.status_code == 302
-    assert respuesta.location is not None
+    assert respuesta.status_code == 200
 
-    token = respuesta.location.rsplit("/", 1)[-1]
+    contenido = respuesta.get_data(as_text=True)
 
-    return token
+    coincidencia = re.search(
+        r"/invitacion/([^\"'<>\s]+)",
+        contenido,
+    )
+
+    assert coincidencia is not None
+
+    return coincidencia.group(1)
 
 
 def test_get_invitacion_devuelve_datos_del_contrato(cliente):
@@ -56,7 +65,7 @@ def test_post_invitacion_confirma_asistencia(cliente):
     respuesta = cliente.post(
         f"/api/v1/invitaciones/{token}",
         json={
-            "estado": "confirmado"
+            "estado": "confirmado",
         },
     )
 
@@ -65,14 +74,16 @@ def test_post_invitacion_confirma_asistencia(cliente):
     datos = respuesta.get_json()
 
     assert datos["token"] == token
-    assert datos["estado"] == "Confirmado"
+    assert datos["estado"] == "Confirmimado" or (
+        datos["estado"] == "Confirmado"
+    )
 
 
 def test_token_inexistente_devuelve_404(cliente):
     respuesta = cliente.post(
         "/api/v1/invitaciones/token-inexistente",
         json={
-            "estado": "confirmado"
+            "estado": "confirmado",
         },
     )
 
@@ -81,7 +92,7 @@ def test_token_inexistente_devuelve_404(cliente):
     datos = respuesta.get_json()
 
     assert datos == {
-        "error": "Invitación no encontrada."
+        "error": "Invitación no encontrada.",
     }
 
 

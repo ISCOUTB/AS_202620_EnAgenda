@@ -54,3 +54,110 @@ StatusCode : 200
 Content    : {
                "status": "ok"
              }
+
+## Validación local con Docker — 04-Oct-2026
+
+### Construcción y ejecución local
+
+Desde la raíz del repositorio se ejecutó:
+
+```powershell
+docker compose up --build
+```
+
+Resultado validado:
+
+```text
+La imagen Docker fue construida.
+El contenedor inició correctamente.
+Gunicorn quedó escuchando en el puerto 5000.
+```
+
+### Health check local
+
+```powershell
+curl.exe -i http://localhost:5000/health
+```
+
+Resultado:
+
+```text
+HTTP/1.1 200 OK
+```
+
+```json
+{
+  "service": "enagenda-api",
+  "status": "ok"
+}
+```
+
+### Métricas locales
+
+```powershell
+curl.exe -i http://localhost:5000/metrics
+```
+
+Resultado:
+
+```text
+HTTP/1.1 200 OK
+```
+
+La respuesta expone:
+
+```text
+enagenda_invitaciones_consultadas_total
+http_requests_total
+http_requests_by_path
+http_responses_by_status
+```
+
+### Pruebas automatizadas
+
+```powershell
+python -m pytest -q
+```
+
+Resultado esperado y validado:
+
+```text
+14 passed
+```
+
+## Despliegue en Dokploy — 04-Oct-2026
+
+### Configuración institucional
+
+| Elemento | Valor |
+|---|---|
+| Plataforma | Dokploy institucional |
+| Proyecto | `enagenda` |
+| Entorno | `production` |
+| Servicio | `sistema` |
+| Repositorio | `ISCOUTB/AS_202620_EnAgenda` |
+| Rama | `master` |
+| Activación | `On Push` |
+| Archivo Compose | `./docker-compose.yml` |
+| Puerto interno | `5000` |
+
+### Resultado del despliegue
+
+Dokploy clonó el repositorio, construyó la imagen Docker e inició el
+contenedor. Los logs registraron:
+
+```text
+Image enagenda-sistema-m7pzgi-enagenda Built
+Container enagenda-sistema-m7pzgi-enagenda-1 Started
+Docker Compose Deployed: ✅
+```
+
+El panel de Dokploy mostró el estado `Done` para el despliegue del commit
+correspondiente a la adaptación de Render a Dokploy.
+
+### Pendiente
+
+- Crear o asignar un host válido en Dokploy.
+- Validar la URL pública.
+- Validar `/health` y `/metrics` desde internet.
+- Configurar HTTPS cuando exista un dominio válido.

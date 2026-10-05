@@ -1,26 +1,26 @@
 import os
 import sys
-
-# Permite importar el paquete src cuando ejecutamos:
-# python app\web.py
-sys.path.insert(
-    0,
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-
 from datetime import datetime
 
 from flask import (
     Flask,
     jsonify,
-    redirect,
     render_template,
     request,
-    url_for,
     send_file,
+    url_for,
 )
 
-from src.invitaciones.aplicacion.gestionar_invitacion import GestionarInvitacion
+# Permite importar el paquete src cuando ejecutamos:
+# python app\web.py
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+from src.invitaciones.aplicacion.gestionar_invitacion import (
+    GestionarInvitacion,
+)
 from src.invitaciones.dominio.invitaciones import EstadoInvitacion
 from src.invitaciones.infraestructura.repositorio_memoria import (
     RepositorioInvitacionesMemoria,
@@ -29,23 +29,25 @@ from src.invitaciones.infraestructura.repositorio_memoria import (
 
 app = Flask(__name__)
 
-# Repositorio en memoria para la interfaz mínima
+# Repositorio en memoria para la interfaz.
 repositorio = RepositorioInvitacionesMemoria()
 gestionar_invitacion = GestionarInvitacion(repositorio)
 
-# Métricas básicas de observabilidad HTTP
+# Métrica específica de consultas exitosas a invitaciones.
+invitaciones_consultadas_total = 0
+
+# Métricas HTTP generales en memoria.
 http_requests_total = 0
 http_requests_by_path = {}
 http_responses_by_status = {}
 
-# Métrica específica de consultas de invitaciones
-invitaciones_consultadas_total = 0
 
 @app.before_request
 def registrar_peticion():
+    """Registra cada petición HTTP para observabilidad local."""
     global http_requests_total
 
-    # Evita que consultar /metrics altere sus propias métricas
+    # Evita que /metrics altere sus propias métricas.
     if request.path == "/metrics":
         return
 
@@ -58,6 +60,7 @@ def registrar_peticion():
 
 @app.after_request
 def registrar_respuesta(response):
+    """Registra el código de respuesta HTTP."""
     if request.path == "/metrics":
         return response
 
@@ -72,20 +75,25 @@ def registrar_respuesta(response):
 
 @app.get("/health")
 def health():
-    return {
-        "service": "enagenda-api",
-        "status": "ok"
-    }, 200
+    """Indica que la API está disponible."""
+    return jsonify(
+        {
+            "service": "enagenda-api",
+            "status": "ok",
+        }
+    ), 200
 
 
 @app.get("/metrics")
 def metrics():
-    """Expone las métricas de observabilidad de EnAgenda."""
+    """Expone métricas de consultas de invitaciones y HTTP."""
     return jsonify(
         {
             "metric": "enagenda_invitaciones_consultadas_total",
             "value": invitaciones_consultadas_total,
-            "description": "Total de consultas de invitaciones realizadas",
+            "description": (
+                "Total de consultas de invitaciones realizadas"
+            ),
             "http_requests_total": http_requests_total,
             "http_requests_by_path": http_requests_by_path,
             "http_responses_by_status": http_responses_by_status,
@@ -95,6 +103,7 @@ def metrics():
 
 @app.get("/openapi.yaml")
 def obtener_contrato_openapi():
+    """Entrega el contrato OpenAPI de la aplicación."""
     ruta_contrato = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "docs",
@@ -110,60 +119,136 @@ def obtener_contrato_openapi():
 
 @app.route("/", methods=["GET", "POST"])
 def inicio():
-    """Muestra el inicio de EnAgenda y permite crear invitaciones."""
+    """Muestra el formulario inicial para crear invitaciones."""
     mensaje_error = None
 
     if request.method == "POST":
-        if request.method == "POST":
-            destinatario = request.form.get("destinatario", "").strip()
-            fecha_limite = request.form.get("fecha_limite", "").strip()
-            hora = request.form.get("hora", "").strip()
-            minuto = request.form.get("minuto", "").strip()
-            periodo = request.form.get("periodo", "").strip()
+        fecha_limite = request.form.get(
+            "fecha_limite",
+            "",
+        ).strip()
 
-        if not destinatario:
-            mensaje_error = "Debes ingresar el nombre del invitado."
+        hora = request.form.get(
+            "hora",
+            "",
+        ).strip()
 
-        elif not fecha_limite:
+        minuto = request.form.get(
+            "minuto",
+            "",
+        ).strip()
+
+        periodo = request.form.get(
+            "periodo",
+            "",
+        ).strip()
+
+        cantidad = request.form.get(
+            "cantidad_invitados",
+            "",
+        ).strip()
+
+        if not fecha_limite:
             mensaje_error = "Debes seleccionar una fecha límite."
+
+        elif not hora:
+            mensaje_error = "Debes seleccionar una hora."
+
+        elif minuto not in ("00", "30"):
+            mensaje_error = "Los minutos deben ser 00 o 30."
+
+        elif periodo not in ("AM", "PM"):
+            mensaje_error = "Debes seleccionar a. m. o p. m."
 
         else:
             try:
-                fecha_limite_respuesta = datetime.fromisoformat(fecha_limite)
+                cantidad_invitados = int(cantidad)
+                hora_numero = int(hora)
 
-                if fecha_limite_respuesta <= datetime.now():
+                if (
+                    cantidad_invitados < 1
+                    or cantidad_invitados > 200
+                ):
                     mensaje_error = (
-                        "La fecha límite debe ser posterior a la fecha actual."
-                    )
-                else:
-                    invitacion = gestionar_invitacion.crear_invitacion(
-                        destinatario=destinatario,
-                        fecha_limite_respuesta=fecha_limite_respuesta,
+                        "La cantidad de invitados debe estar "
+                        "entre 1 y 200."
                     )
 
-                    return redirect(
-                        url_for(
-                            "invitacion_creada",
-                            token=invitacion.token,
-                        )
+                elif hora_numero < 1 or hora_numero > 12:
+                    mensaje_error = (
+                        "La hora seleccionada no es válida."
                     )
+
+                else:
+                    if periodo == "AM":
+                        if hora_numero == 12:
+                            hora_numero = 0
+                    else:
+                        if hora_numero != 12:
+                            hora_numero += 12
+
+                    fecha_limite_respuesta = datetime.strptime(
+                        (
+                            f"{fecha_limite} "
+                            f"{hora_numero:02d}:{minuto}"
+                        ),
+                        "%Y-%m-%d %H:%M",
+                    )
+
+                    if fecha_limite_respuesta <= datetime.now():
+                        mensaje_error = (
+                            "La fecha y hora límite deben ser "
+                            "posteriores a la fecha actual."
+                        )
+
+                    else:
+                        return render_template(
+                            "invitados.html",
+                            cantidad_invitados=cantidad_invitados,
+                            fecha_limite=fecha_limite,
+                            hora=hora,
+                            minuto=minuto,
+                            periodo=periodo,
+                        )
 
             except ValueError:
-                mensaje_error = "La fecha ingresada no es válida."
+                mensaje_error = (
+                    "Los datos ingresados no son válidos."
+                )
 
     return render_template(
         "inicio.html",
         mensaje_error=mensaje_error,
     )
 
+
 @app.post("/crear-invitaciones")
 def crear_invitaciones():
     """Crea varias invitaciones usando una fecha límite global."""
-    fecha_limite = request.form.get("fecha_limite", "").strip()
-    hora = request.form.get("hora", "").strip()
-    minuto = request.form.get("minuto", "").strip()
-    periodo = request.form.get("periodo", "").strip()
-    cantidad = request.form.get("cantidad_invitados", "").strip()
+    fecha_limite = request.form.get(
+        "fecha_limite",
+        "",
+    ).strip()
+
+    hora = request.form.get(
+        "hora",
+        "",
+    ).strip()
+
+    minuto = request.form.get(
+        "minuto",
+        "",
+    ).strip()
+
+    periodo = request.form.get(
+        "periodo",
+        "",
+    ).strip()
+
+    cantidad = request.form.get(
+        "cantidad_invitados",
+        "",
+    ).strip()
 
     try:
         cantidad_invitados = int(cantidad)
@@ -181,7 +266,6 @@ def crear_invitaciones():
         if periodo not in ("AM", "PM"):
             raise ValueError
 
-        # Convertir de formato 12 horas a 24 horas
         if periodo == "AM":
             if hora_numero == 12:
                 hora_numero = 0
@@ -198,7 +282,11 @@ def crear_invitaciones():
             raise ValueError
 
     except ValueError:
-        return "Los datos generales de las invitaciones no son válidos.", 400
+        return (
+            "Los datos generales de las invitaciones "
+            "no son válidos.",
+            400,
+        )
 
     invitaciones_creadas = []
 
@@ -243,14 +331,16 @@ def crear_invitaciones():
         fecha_limite_respuesta=fecha_limite_respuesta,
     )
 
+
 @app.get("/invitacion-creada/<token>")
 def invitacion_creada(token):
-    """Muestra al organizador la invitación que acaba de crear."""
+    """Muestra al organizador la invitación creada."""
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
             ahora=datetime.now(),
         )
+
     except ValueError as error:
         return f"<h1>Error</h1><p>{error}</p>", 404
 
@@ -266,6 +356,7 @@ def invitacion_creada(token):
         enlace_invitacion=enlace_invitacion,
     )
 
+
 @app.route("/invitacion/<token>", methods=["GET", "POST"])
 def ver_invitacion(token):
     """Muestra una invitación y permite responderla."""
@@ -276,13 +367,16 @@ def ver_invitacion(token):
 
         if estado == "confirmado":
             nuevo_estado = EstadoInvitacion.CONFIRMADO
+
         elif estado == "no_asistire":
             nuevo_estado = EstadoInvitacion.NO_ASISTIRE
+
         else:
             nuevo_estado = None
 
         if nuevo_estado is None:
             mensaje = "Estado no válido."
+
         else:
             try:
                 gestionar_invitacion.responder(
@@ -290,26 +384,37 @@ def ver_invitacion(token):
                     estado=nuevo_estado,
                     ahora=datetime.now(),
                 )
-                mensaje = "Respuesta registrada correctamente."
+
+                mensaje = (
+                    "Respuesta registrada correctamente."
+                )
+
             except ValueError as error:
-                return f"<h1>Error</h1><p>{error}</p>", 404
+                return (
+                    f"<h1>Error</h1><p>{error}</p>",
+                    404,
+                )
 
     try:
         invitacion = gestionar_invitacion.consultar(
             token=token,
             ahora=datetime.now(),
         )
+
     except ValueError as error:
         return f"<h1>Error</h1><p>{error}</p>", 404
 
     return render_template(
-    "invitacion.html",
-    invitacion=invitacion,
-    mensaje=mensaje,
+        "invitacion.html",
+        invitacion=invitacion,
+        mensaje=mensaje,
+    )
+
+
+@app.route(
+    "/api/v1/invitaciones/<token>",
+    methods=["GET"],
 )
-
-
-@app.route("/api/v1/invitaciones/<token>", methods=["GET"])
 def api_consultar_invitacion(token):
     """Consulta una invitación y devuelve sus datos en JSON."""
     global invitaciones_consultadas_total
@@ -319,14 +424,16 @@ def api_consultar_invitacion(token):
             token=token,
             ahora=datetime.now(),
         )
-        invitaciones_consultadas_total += 1
+
     except ValueError as error:
         return jsonify(
             {
-                "error": str(error)
+                "error": str(error),
             }
         ), 404
-    
+
+    invitaciones_consultadas_total += 1
+
     return jsonify(
         {
             "token": invitacion.token,
@@ -339,15 +446,18 @@ def api_consultar_invitacion(token):
     ), 200
 
 
-@app.route("/api/v1/invitaciones/<token>", methods=["POST"])
+@app.route(
+    "/api/v1/invitaciones/<token>",
+    methods=["POST"],
+)
 def api_responder_invitacion(token):
-    """Registra la respuesta del invitado y devuelve la invitación en JSON."""
+    """Registra la respuesta del invitado y devuelve la invitación."""
     datos = request.get_json(silent=True)
 
     if not isinstance(datos, dict) or "estado" not in datos:
         return jsonify(
             {
-                "error": "Debe proporcionar el campo 'estado'."
+                "error": "Debe proporcionar el campo 'estado'.",
             }
         ), 400
 
@@ -355,12 +465,16 @@ def api_responder_invitacion(token):
 
     if estado == "confirmado":
         nuevo_estado = EstadoInvitacion.CONFIRMADO
+
     elif estado == "no_asistire":
         nuevo_estado = EstadoInvitacion.NO_ASISTIRE
+
     else:
         return jsonify(
             {
-                "error": "El estado proporcionado no es válido."
+                "error": (
+                    "El estado proporcionado no es válido."
+                ),
             }
         ), 400
 
@@ -370,10 +484,11 @@ def api_responder_invitacion(token):
             estado=nuevo_estado,
             ahora=datetime.now(),
         )
+
     except ValueError as error:
         return jsonify(
             {
-                "error": str(error)
+                "error": str(error),
             }
         ), 404
 
