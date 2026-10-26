@@ -1,0 +1,25 @@
+{"event": "message_produced", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 0, "virtual_time_seconds": 0}
+{"event": "message_produced", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 0, "virtual_time_seconds": 0}
+{"event": "message_produced", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 0, "virtual_time_seconds": 0}
+{"event": "message_produced", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 0, "virtual_time_seconds": 0}
+{"event": "message_delivered", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "provider_attempt", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "send_accepted", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 1, "virtual_time_seconds": 0, "provider_receipt": "sim-envio-normal"}
+{"event": "message_delivered", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "duplicate_ignored", "message_id": "msg-normal", "envio_id": "envio-normal", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "message_delivered", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "provider_attempt", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "retry_scheduled", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 1, "virtual_time_seconds": 0, "delay_seconds": 1}
+{"event": "message_delivered", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "provider_attempt", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 1, "virtual_time_seconds": 0}
+{"event": "retry_scheduled", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 1, "virtual_time_seconds": 0, "delay_seconds": 1}
+{"event": "message_delivered", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 2, "virtual_time_seconds": 1}
+{"event": "provider_attempt", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 2, "virtual_time_seconds": 1}
+{"event": "send_accepted", "message_id": "msg-recuperable", "envio_id": "envio-recuperable", "attempt": 2, "virtual_time_seconds": 1, "provider_receipt": "sim-envio-recuperable"}
+{"event": "message_delivered", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 2, "virtual_time_seconds": 1}
+{"event": "provider_attempt", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 2, "virtual_time_seconds": 1}
+{"event": "retry_scheduled", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 2, "virtual_time_seconds": 1, "delay_seconds": 2}
+{"event": "message_delivered", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 3, "virtual_time_seconds": 3}
+{"event": "provider_attempt", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 3, "virtual_time_seconds": 3}
+{"event": "message_dead_lettered", "message_id": "msg-agotado", "envio_id": "envio-agotado", "attempt": 3, "virtual_time_seconds": 3, "reason": "Proveedor temporalmente no disponible"}
+{"event": "experiment_summary", "accepted_sends": 2, "duplicates": 1, "retries": 3, "dead_letters": 1}
