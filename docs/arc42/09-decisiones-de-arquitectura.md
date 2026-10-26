@@ -20,3 +20,11 @@ GestionarInvitacion
 Invitacion / EstadoInvitacion
     ↓
 RepositorioInvitacionesMemoria
+
+## ADR-0004 — Persistencia relacional (S12)
+
+[Decisión PostgreSQL y costo de reversión](../adr/0004-persistir-datos-en-postgresql.md).
+El flujo `/eventos` usa PostgreSQL; el diagrama en memoria anterior describe
+únicamente las rutas heredadas. La implementación actual es Flask con HTML y API,
+no Next.js ni Server Actions. Los ADR antiguos se conservan como registro histórico;
+esta nota no certifica que su historial haya sido corregido.

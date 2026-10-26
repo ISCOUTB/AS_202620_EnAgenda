@@ -35,7 +35,7 @@ def obtener_token(cliente):
     """Crea una invitación de prueba y devuelve su token."""
 
     # Obtener CSRF desde el formulario principal
-    pagina = cliente.get("/")
+    pagina = cliente.get("/login")
     assert pagina.status_code == 200
 
     extractor = ExtractorCSRF()

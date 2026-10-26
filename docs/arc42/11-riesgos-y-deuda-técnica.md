@@ -103,3 +103,18 @@ Los riesgos que deben recibir mayor atención durante el desarrollo son:
 
 Estos riesgos se revisarán a medida que avance la implementación y podrán
 modificarse cuando exista nueva evidencia técnica.
+
+
+## Actualización S12 — 25-Oct-2026
+
+La deuda de persistencia está parcialmente resuelta: usuarios, eventos e
+invitaciones de `/eventos` usan PostgreSQL. Permanece el flujo heredado en memoria,
+con pérdida al reiniciar y tokens distintos; falta consolidarlo o retirarlo con
+compatibilidad explícita. Dokploy ya está seleccionado; sustituye la descripción
+anterior de selección de despliegue pendiente. Falta verificar el despliegue de
+esta revisión, respaldos y concurrencia en PostgreSQL. No hay caché de negocio.
+
+Pendientes transversales: análisis y Quality Gate públicos de SonarCloud;
+restauración y trazabilidad histórica de ADR-0003 Render/Dokploy sin reutilizar
+números; escaneo redactado del historial completo por credenciales; evidencia de
+contribución real de los integrantes. Este paquete no afirma haberlos completado.

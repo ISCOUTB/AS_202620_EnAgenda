@@ -95,6 +95,12 @@ def registrar_peticion():
 @app.after_request
 def registrar_respuesta(response):
     """Registra el código de respuesta HTTP."""
+    if request.endpoint in {
+        "ver_invitacion_evento", "ver_invitacion", "invitacion_creada",
+        "api_consultar_invitacion", "api_responder_invitacion", "invitados_evento",
+        "crear_invitaciones",
+    }:
+        response.headers["Cache-Control"] = "no-store"
     if request.path == "/metrics":
         return response
 
@@ -367,7 +373,13 @@ def ver_invitacion_evento(token):
         if invitacion is None:
             abort(404)
 
-        evento = sesion.get(EventoModelo, invitacion.evento_id)
+        evento = sesion.scalar(
+            select(EventoModelo)
+            .where(EventoModelo.id == invitacion.evento_id)
+            .with_for_update()
+        )
+        # Releer tras adquirir el bloqueo: otra respuesta pudo confirmar antes.
+        sesion.refresh(invitacion)
 
         if evento is None:
             abort(404)
@@ -551,6 +563,11 @@ def crear_invitaciones():
             "no son válidos.",
             400,
         )
+
+    # Validar el lote completo antes de realizar la primera escritura.
+    for numero in range(1, cantidad_invitados + 1):
+        if not request.form.get(f"nombre_{numero}", "").strip() or not request.form.get(f"correo_{numero}", "").strip():
+            return f"Faltan datos del invitado número {numero}.", 400
 
     invitaciones_creadas = []
 
