@@ -1,0 +1,17 @@
+Python 3.14.7
+test_backoff_fallidos (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_backoff_fallidos) ... ok
+test_canal (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_canal) ... ok
+test_duplicado (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_duplicado) ... ok
+test_envio_exitoso (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_envio_exitoso) ... ok
+test_mismo_envio_otro_mensaje (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_mismo_envio_otro_mensaje) ... ok
+test_obligatorio (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_obligatorio) ... ok
+test_opcional (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_opcional) ... ok
+test_proveedor_idempotente (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_proveedor_idempotente) ... ok
+test_recuperable (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_recuperable) ... ok
+test_trazabilidad (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_trazabilidad) ... ok
+test_version (experimentos.mensajes_consistencia.test_simulador.PruebasEnvios.test_version) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.001s
+
+OK
