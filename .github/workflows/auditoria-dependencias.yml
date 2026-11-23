@@ -1,0 +1,57 @@
+name: Auditoria de dependencias
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias fijadas para auditoria
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes --no-deps -r requerimiento-auditoria-lock.txt
+          python -m pip check
+
+      - name: Registrar versiones auditadas
+        run: |
+          mkdir -p evidencia-auditoria
+          python --version > evidencia-auditoria/python.txt
+          python -m pip freeze > evidencia-auditoria/dependencias.txt
+
+      - name: Preparar herramienta aislada
+        run: |
+          python -m venv /tmp/auditoria
+          /tmp/auditoria/bin/python -m pip install --only-binary=:all: pip-audit==2.10.1
+          /tmp/auditoria/bin/python -m pip_audit --version > evidencia-auditoria/herramienta.txt
+
+      - name: Auditar dependencias instaladas
+        run: |
+          /tmp/auditoria/bin/python -m pip_audit \
+            -r evidencia-auditoria/dependencias.txt \
+            --no-deps \
+            --disable-pip \
+            --format json \
+            --output evidencia-auditoria/reporte.json
+
+      - name: Conservar evidencia
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-${{ github.sha }}
+          path: evidencia-auditoria/

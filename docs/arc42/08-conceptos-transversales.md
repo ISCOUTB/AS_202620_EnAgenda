@@ -133,3 +133,22 @@ no revoca automáticamente otras sesiones existentes; no se implementó versiona
 sesiones. La preferencia `usuarios.tema` usa una lista cerrada de colores y una
 migración con valor predeterminado `violeta` para cuentas existentes. No se inyecta
 CSS libre desde formularios. Las páginas privadas usan `Cache-Control: no-store`.
+
+## Seguridad y privacidad — revisión del 23-Nov-2026
+
+El modelo de amenazas identifica activos, actores, límites de confianza,
+controles, evidencias y pendientes:
+
+[Modelo de amenazas y privacidad](../seguridad/modelo-amenazas.md).
+
+Se verificaron parcialmente autorización por propietario, vigencia de
+invitaciones, CSRF de login y autorización de métricas mediante las pruebas
+enlazadas. No se afirma cobertura completa de seguridad.
+
+La configuración incluye HttpOnly, SameSite=Lax y Secure condicionado por
+FLASK_SECURE_COOKIES. El acceso público observado fue HTTP; HTTPS y la
+configuración efectiva de cookies del servidor siguen pendientes de revisión.
+
+La auditoría local posterior al cambio a pytest 9.0.3 no encontró avisos
+conocidos en el inventario examinado. La ejecución del nuevo workflow de
+auditoría aún debe verificarse.
