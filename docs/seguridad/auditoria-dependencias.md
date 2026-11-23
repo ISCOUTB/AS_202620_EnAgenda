@@ -62,8 +62,24 @@ El resto de dependencias se mantiene según requerimiento.txt; esta auditoría
 no demuestra que pytest fuera el único paquete cuya versión cambió al
 reconstruir. Los inventarios conservan las versiones de ambas ejecuciones.
 
-Pendientes: separar dependencias productivas y de desarrollo, fijar el conjunto
-resuelto con hashes y automatizar revisiones periódicas.
+Pendientes: separar dependencias productivas y de desarrollo, extender el
+bloqueo con hashes a la instalación productiva y a las dependencias de la
+herramienta de auditoría, y automatizar revisiones periódicas.
+
+El entorno del job de auditoría ya utiliza requerimiento-auditoria-lock.txt
+con versiones fijadas y verificación de hashes. Esto no modifica por sí
+solo la instalación productiva basada en requerimiento.txt.
 
 No se ha completado una revisión de todos los paquetes del sistema operativo
 ni una auditoría exhaustiva del historial por secretos.
+
+## Aviso de SonarCloud sobre la versión de Python
+
+El aviso indica que el análisis no tenía una versión objetivo de Python
+especificada. Docker y el CI del proyecto utilizan Python 3.13.
+
+Se añade a la configuración sonar.python.version=3.13 mediante el archivo
+.sonarcloud.properties en la raíz del repositorio.
+
+La aplicación de esa configuración y la desaparición del aviso quedan
+pendientes de verificación en un análisis posterior.
