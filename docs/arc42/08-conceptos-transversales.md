@@ -111,3 +111,25 @@ Repetir una respuesta con el mismo estado es idempotente respecto al estado fina
 repetir un alta de invitados devuelve error por correo ya registrado. Crear eventos
 no tiene clave de idempotencia: un reintento puede crear otro evento mientras haya
 cupo. No se promete entrega exactamente una vez.
+
+
+## Historial y configuración de cuenta — noviembre de 2026
+
+El historial es una consulta de eventos del usuario con estado `finalizado` o
+`cancelado`, no un log de auditoría. El cierre es manual: una fecha pasada no
+archiva automáticamente un evento. No se eliminan filas ni se reabren eventos
+cerrados. Se conserva la distinción entre invitación pendiente y respuesta explícita.
+`Mis eventos` solo muestra `borrador` y `en_preparacion`.
+
+`cerrar_evento` bloquea primero el usuario y después el evento, igual que el orden
+usado en creación; confirma el estado en una transacción y libera cupo en el conteo
+de activos. El bloqueo de evento coincide con altas y respuestas de invitados.
+Tras el cierre, los invitados no pueden responder ni agregarse nuevas invitaciones;
+el organizador conserva la consulta. Concurrencia PostgreSQL queda por verificar.
+
+Configuración valida nombre, correo normalizado y contraseña actual antes de cambiar
+perfil o clave. Las contraseñas se guardan mediante hash scrypt. El cambio de clave
+no revoca automáticamente otras sesiones existentes; no se implementó versionado de
+sesiones. La preferencia `usuarios.tema` usa una lista cerrada de colores y una
+migración con valor predeterminado `violeta` para cuentas existentes. No se inyecta
+CSS libre desde formularios. Las páginas privadas usan `Cache-Control: no-store`.

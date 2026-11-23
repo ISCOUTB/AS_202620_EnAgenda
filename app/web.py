@@ -6,6 +6,7 @@ from functools import wraps
 
 from flask import (
     Flask,
+    flash,
     jsonify,
     redirect,
     render_template,
@@ -49,6 +50,14 @@ from zoneinfo import ZoneInfo
 from flask import abort
 from datetime import datetime, timezone
 from sqlalchemy import select
+from src.usuarios.aplicacion.configurar_cuenta import configurar_cuenta, TEMAS
+from src.eventos.aplicacion.cerrar_evento import cerrar_evento
+
+
+def fecha_utc(fecha):
+    """PostgreSQL entrega fechas conscientes; SQLite de pruebas omite tzinfo."""
+    return fecha.replace(tzinfo=timezone.utc) if fecha.tzinfo is None else fecha.astimezone(timezone.utc)
+
 
 from src.tareas.aplicacion.gestionar_tareas import (
     consultar_tareas,
@@ -106,6 +115,8 @@ def registrar_respuesta(response):
         "crear_invitaciones",
     }:
         response.headers["Cache-Control"] = "no-store"
+    if session.get("usuario_id") or request.endpoint in {"historial", "configuracion"}:
+        response.headers["Cache-Control"] = "no-store"
     if request.path == "/metrics":
         return response
 
@@ -125,6 +136,11 @@ def login_requerido(funcion):
     def decorador(*args, **kwargs):
         if "usuario_id" not in session:
             return redirect(url_for("login"))
+        with SessionLocal() as sesion_db:
+            usuario = sesion_db.get(UsuarioModelo, session["usuario_id"])
+            if usuario is None or not usuario.activo:
+                session.clear()
+                return redirect(url_for("login"))
         return funcion(*args, **kwargs)
     return decorador
 
@@ -189,7 +205,7 @@ def panel():
 
         repositorio = RepositorioEventos(sesion)
 
-        eventos = repositorio.listar_por_usuario(usuario_id)
+        eventos = [e for e in repositorio.listar_por_usuario(usuario_id) if e.estado in ("borrador", "en_preparacion")]
         cantidad_activos = repositorio.contar_activos(usuario_id)
 
         datos_eventos = [
@@ -198,7 +214,7 @@ def panel():
                 "titulo": evento.titulo,
                 "descripcion": evento.descripcion,
                 "ubicacion": evento.ubicacion,
-                "fecha_evento": evento.fecha_evento,
+                "fecha_evento": fecha_utc(evento.fecha_evento).astimezone(ZoneInfo("America/Bogota")),
                 "estado": evento.estado,
             }
             for evento in eventos
@@ -290,9 +306,9 @@ def detalle_evento(evento_id):
             "descripcion": evento.descripcion,
             "ubicacion": evento.ubicacion,
             "estado": evento.estado,
-            "fecha_evento": evento.fecha_evento.astimezone(zona),
+            "fecha_evento": fecha_utc(evento.fecha_evento).astimezone(zona),
             "fecha_limite": (
-                evento.fecha_limite_confirmacion.astimezone(zona)
+                fecha_utc(evento.fecha_limite_confirmacion).astimezone(zona)
             ),
         }
 
@@ -316,6 +332,7 @@ def invitados_evento(evento_id):
             abort(404)
 
         titulo_evento = evento.titulo
+        evento_cerrado = evento.estado in ("finalizado", "cancelado")
 
     if request.method == "POST":
         nombres = request.form.getlist("nombre[]")
@@ -359,6 +376,7 @@ def invitados_evento(evento_id):
         titulo_evento=titulo_evento,
         invitaciones=invitaciones,
         espacios_disponibles=30 - len(invitaciones),
+        evento_cerrado=evento_cerrado,
         mensaje_error=mensaje_error,
     )
 
@@ -392,7 +410,7 @@ def ver_invitacion_evento(token):
         ahora = datetime.now(timezone.utc)
 
         vencida = (
-            ahora > evento.fecha_limite_confirmacion
+            ahora > fecha_utc(evento.fecha_limite_confirmacion)
             or evento.estado in ("finalizado", "cancelado")
         )
 
@@ -416,11 +434,11 @@ def ver_invitacion_evento(token):
             "titulo": evento.titulo,
             "descripcion": evento.descripcion,
             "ubicacion": evento.ubicacion,
-            "fecha_evento": evento.fecha_evento.astimezone(
+            "fecha_evento": fecha_utc(evento.fecha_evento).astimezone(
                 ZoneInfo("America/Bogota")
             ),
             "fecha_limite": (
-                evento.fecha_limite_confirmacion.astimezone(
+                fecha_utc(evento.fecha_limite_confirmacion).astimezone(
                     ZoneInfo("America/Bogota")
                 )
             ),
@@ -433,6 +451,69 @@ def ver_invitacion_evento(token):
         mensaje=mensaje,
         error=error,
     )
+
+
+@app.context_processor
+def apariencia_cuenta():
+    tema = "violeta"
+    if session.get("usuario_id"):
+        with SessionLocal() as sesion_db:
+            usuario = sesion_db.get(UsuarioModelo, session["usuario_id"])
+            if usuario is not None:
+                tema = usuario.tema
+    etiqueta, acento, suave = TEMAS.get(tema, TEMAS["violeta"])
+    return {"tema_acento": acento, "tema_suave": suave, "temas_disponibles": TEMAS}
+
+
+@app.get("/historial")
+@login_requerido
+def historial():
+    estado = request.args.get("estado", "todos")
+    if estado not in ("todos", "finalizado", "cancelado"):
+        abort(400)
+    with SessionLocal() as sesion_db:
+        consulta = select(EventoModelo).where(
+            EventoModelo.usuario_id == session["usuario_id"],
+            EventoModelo.estado.in_(("finalizado", "cancelado")),
+        ).order_by(EventoModelo.fecha_evento.desc(), EventoModelo.id.desc())
+        if estado != "todos":
+            consulta = consulta.where(EventoModelo.estado == estado)
+        eventos = [{"id": e.id, "titulo": e.titulo, "ubicacion": e.ubicacion,
+                    "estado": e.estado, "fecha_evento": fecha_utc(e.fecha_evento).astimezone(ZoneInfo("America/Bogota"))}
+                   for e in sesion_db.scalars(consulta)]
+    return render_template("historial.html", eventos=eventos, filtro=estado)
+
+
+@app.post("/eventos/<int:evento_id>/cerrar")
+@login_requerido
+def cerrar_evento_web(evento_id):
+    try:
+        cerrar_evento(evento_id, session["usuario_id"], request.form.get("estado", ""))
+    except LookupError:
+        abort(404)
+    except ValueError as error:
+        flash(str(error), "error")
+        return redirect(url_for("detalle_evento", evento_id=evento_id))
+    flash("El evento se guardó en tu historial. Sus invitados y respuestas se conservan.", "exito")
+    return redirect(url_for("historial"))
+
+
+@app.route("/configuracion", methods=["GET", "POST"])
+@login_requerido
+def configuracion():
+    error = None
+    if request.method == "POST":
+        try:
+            configurar_cuenta(session["usuario_id"], request.form)
+        except ValueError as excepcion:
+            error = str(excepcion)
+        else:
+            flash("Cambios guardados correctamente.", "exito")
+            return redirect(url_for("configuracion"))
+    with SessionLocal() as sesion_db:
+        usuario = sesion_db.get(UsuarioModelo, session["usuario_id"])
+        datos = {"nombre": usuario.nombre, "correo": usuario.correo, "tema": usuario.tema}
+    return render_template("configuracion.html", usuario=datos, error=error), (400 if error else 200)
 
 
 @app.post("/logout")
