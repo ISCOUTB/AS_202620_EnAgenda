@@ -42,41 +42,47 @@ técnica durante el desarrollo del proyecto.
 La deuda técnica identificada en el estado actual del proyecto es principalmente
 de documentación e implementación parcial.
 
-### DT-01 — Implementación parcial de módulos
+### DT-01 — Alcance funcional parcialmente implementado
 
-La arquitectura contempla módulos para eventos, invitaciones, tareas,
-agenda, presupuesto y panel. Sin embargo, la implementación comprobable
-actualmente se concentra principalmente en el módulo de Invitaciones.
+La versión integrada incluye los flujos de eventos e invitaciones, gestión
+de tareas, historial y configuración de cuenta. Se dispone de pruebas
+automatizadas para distintos casos de invitaciones, consistencia, historial,
+configuración, contrato y métricas, además del prototipo de mensajería.
+Tareas cuenta con comprobaciones funcionales manuales.
 
-**Consecuencia:** existe una diferencia entre la arquitectura prevista para
-el MVP y el nivel de implementación actual.
+Agenda y Presupuesto no se han completado ni verificado como módulos
+funcionales en este cierre.
 
-**Plan:** implementar progresivamente los módulos restantes y actualizar las
-vistas de arquitectura cuando exista código que permita comprobar sus
-responsabilidades.
+Consecuencia: el alcance implementado es menor que el previsto inicialmente.
 
-### DT-02 — Persistencia en memoria
+Plan: declarar el alcance real en README, arc42 y guía de entrega.
+Las funcionalidades pendientes no deben presentarse como disponibles.
 
-El módulo de Invitaciones utiliza actualmente
-`RepositorioInvitacionesMemoria` para almacenar información.
+### DT-02 — Coexistencia de persistencia PostgreSQL y memoria
 
-**Consecuencia:** la información almacenada en memoria no representa todavía
-una solución de persistencia adecuada para un despliegue real.
+El flujo de eventos utiliza PostgreSQL. Permanece un flujo heredado de
+invitaciones con RepositorioInvitacionesMemoria, separado del persistente.
 
-**Plan:** reemplazar posteriormente la implementación en memoria por un
-mecanismo de persistencia apropiado para el MVP, manteniendo separadas las
-reglas del dominio y la infraestructura.
+Consecuencia: el flujo heredado no tiene durabilidad ni coordinación entre
+procesos y puede generar confusión sobre rutas y tokens.
 
-### DT-03 — Vista de despliegue pendiente
+Plan: consolidar o retirar las rutas heredadas mediante una decisión explícita,
+con pruebas de compatibilidad. No describir todo el sistema como persistente
+mientras existan esos caminos.
 
-La vista de despliegue de arc42 todavía no contiene la descripción definitiva
-del entorno utilizado.
+### DT-03 — Documentación y automatización del despliegue
 
-**Consecuencia:** todavía no existe una correspondencia completa entre la
-arquitectura lógica y el entorno real de ejecución.
+Dokploy está seleccionado y la base PostgreSQL del servidor fue actualizada
+a la revisión 7d297b6ad7b3. Tras aplicar las migraciones, se confirmó
+manualmente que la aplicación pública volvió a abrir.
 
-**Plan:** completar esta sección cuando se defina y compruebe el mecanismo
-de despliegue del proyecto.
+Consecuencia: construir y arrancar el contenedor no garantiza que el esquema
+de base de datos sea compatible con el código desplegado.
+
+Plan: actualizar la vista de despliegue y el procedimiento operativo con
+respaldo, revisión y aplicación controlada de migraciones, comprobación
+posterior y recuperación. La automatización completa de ese procedimiento
+todavía no se acredita.
 
 ### DT-04 — Pruebas y medición de rendimiento pendientes
 
@@ -105,7 +111,11 @@ Estos riesgos se revisarán a medida que avance la implementación y podrán
 modificarse cuando exista nueva evidencia técnica.
 
 
-## Actualización S12 — 25-Oct-2026
+## Actualización histórica S12 — 25-Oct-2026
+
+El siguiente bloque describe el estado registrado en esa fecha. Los avances
+posteriores se detallan en las revisiones de noviembre y prevalecen para
+describir el estado actual.
 
 La deuda de persistencia está parcialmente resuelta: usuarios, eventos e
 invitaciones de `/eventos` usan PostgreSQL. Permanece el flujo heredado en memoria,
@@ -127,11 +137,17 @@ La integración productiva prevista sigue el recorrido navegador → Flask →
 servicios de aplicación → SQLAlchemy → PostgreSQL. El proveedor de envío del
 taller es simulado y no forma parte de este recorrido.
 
-Se ejecutaron conjuntamente 35 pruebas de aplicación y prototipo, con resultado
-satisfactorio. La evidencia está en
-[pruebas integradas](../evidencias/pruebas-integradas.txt).
-Esto no demuestra disponibilidad pública, tolerancia a fallos de red ni
-concurrencia real entre procesos PostgreSQL.
+La ejecución conjunta inicial registró 35 pruebas aprobadas; el archivo
+[pruebas integradas](../evidencias/pruebas-integradas.txt) se actualizó
+posteriormente con una ejecución de 39 pruebas.
+
+Después de integrar Historial y Configuración y actualizar pytest a 9.0.3,
+se ejecutaron 54 pruebas, todas aprobadas. La evidencia más reciente está en
+[pruebas con pytest 9](../evidencias/pruebas-pytest-9.txt).
+
+Estos resultados no demuestran tolerancia a fallos de red, concurrencia
+real entre procesos PostgreSQL ni cobertura completa de seguridad.
+La comprobación manual del despliegue se registra por separado.
 
 ### Modos de fallo y mitigaciones
 
@@ -169,10 +185,37 @@ revisión están en el
 
 ### Deuda actualizada
 
-Tareas ya cuenta con persistencia PostgreSQL y verificación funcional manual.
-Las 35 pruebas registradas no incluyen pruebas automatizadas específicas de
-Tareas ni certifican toda la seguridad del sistema.
+Tareas cuenta con persistencia PostgreSQL y verificación funcional manual.
+La ejecución más reciente registra 54 pruebas aprobadas, sin pruebas
+automatizadas específicas de Tareas.
+
+Se confirmó funcionamiento manual de la aplicación pública después de
+aplicar las migraciones. Esto no sustituye pruebas de carga, disponibilidad
+continuada ni revisión completa de todos los flujos.
+
+El pull request #6 superó cuatro comprobaciones, incluido CI, taller y
+SonarCloud con Quality Gate aprobado. El nuevo workflow de auditoría de
+dependencias añadido en la rama de cierre aún debe ejecutarse y verificarse.
 
 Continúan pendientes: fallos reales de infraestructura, concurrencia en
 PostgreSQL, restauración de respaldos, medición de rendimiento, comprobación
 del despliegue público y consolidación del flujo heredado en memoria.
+
+## Seguridad — revisión del 23-Nov-2026
+
+Las amenazas AM-01 a AM-09, su prioridad, controles y pendientes se documentan
+en el [modelo de amenazas](../seguridad/modelo-amenazas.md).
+
+Prioridad inmediata: transporte HTTPS, autorización y CSRF, secretos,
+dependencias y recuperación. No se declara aceptación del equipo de riesgos
+todavía no revisados.
+
+La auditoría inicial detectó un aviso de pytest repetido. Se actualizó a
+9.0.3, se aprobaron 54 pruebas y la auditoría local posterior no detectó
+avisos conocidos. Véase
+[tratamiento de dependencias](../seguridad/auditoria-dependencias.md).
+
+La base PostgreSQL del servidor se actualizó a 7d297b6ad7b3 después de crear
+un respaldo temporal y comprobar su índice. Se confirmó manualmente la
+recuperación del panel. No se ensayó restauración ni se extrajo todavía el
+respaldo.
