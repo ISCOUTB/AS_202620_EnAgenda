@@ -348,13 +348,36 @@ def invitados_evento(evento_id):
                 for nombre, correo in zip(nombres, correos)
             ]
 
-            agregar_invitados(
+            invitaciones_creadas = agregar_invitados(
                 evento_id=evento_id,
                 usuario_id=usuario_id,
                 invitados=invitados_nuevos,
             )
 
-            return redirect(url_for("invitados_evento", evento_id=evento_id))
+            resultado_correo = enviar_invitaciones_por_correo(
+                invitaciones_creadas,
+                titulo_evento,
+            )
+
+            enviadas = resultado_correo["enviadas"]
+            fallidas = resultado_correo["fallidas"]
+
+            if fallidas:
+                flash(
+                    f"Invitaciones guardadas. Correos aceptados por SMTP: "
+                    f"{enviadas}. No enviados: {fallidas}.",
+                    "error",
+                )
+            else:
+                flash(
+                    f"Invitaciones guardadas. Correos aceptados por SMTP: "
+                    f"{enviadas}.",
+                    "exito",
+                )
+
+            return redirect(
+                url_for("invitados_evento", evento_id=evento_id)
+            )
 
         except ValueError as error:
             mensaje_error = str(error)
@@ -957,3 +980,7 @@ def formato_cop(valor):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+from src.invitaciones.infraestructura.correo_smtp import (
+    enviar_invitaciones_por_correo,
+)

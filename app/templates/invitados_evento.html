@@ -1,13 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitados | EnAgenda</title>
+
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/panel.css') }}">
-{% include '_tema.html' %}
+
+    {% include '_tema.html' %}
 </head>
 <body>
 <main class="main detail-page">
@@ -19,12 +20,25 @@
 
     <header class="detail-header">
         <p class="eyebrow">GESTIÓN DE INVITADOS</p>
+
         <h1>{{ titulo_evento }}</h1>
+
         <p class="subtitle">
             {{ invitaciones | length }} de 30 invitados registrados.
             Quedan {{ espacios_disponibles }} espacios.
         </p>
     </header>
+
+    <!-- Resultado del guardado y del envío por correo -->
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% for categoria, texto in mensajes %}
+            <div
+                class="{{ 'error-message' if categoria == 'error' else 'notice' }}"
+                role="{{ 'alert' if categoria == 'error' else 'status' }}">
+                {{ texto }}
+            </div>
+        {% endfor %}
+    {% endwith %}
 
     {% if mensaje_error %}
         <div class="error-message" role="alert">
@@ -33,66 +47,80 @@
     {% endif %}
 
     {% if espacios_disponibles > 0 and not evento_cerrado %}
-    <section class="detail-info">
-        <h2>Agregar invitados</h2>
+        <section class="detail-info">
+            <h2>Agregar invitados</h2>
 
-        <form method="POST">
-            <input type="hidden" name="csrf_token"
-                   value="{{ csrf_token() }}">
+            <form method="POST">
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
 
-            <div class="guest-fields">
-                <label for="nombre">Nombre</label>
-                <input id="nombre" name="nombre[]"
-                       maxlength="150" required
-                       placeholder="Nombre del invitado">
+                <div class="guest-fields">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre"
+                           name="nombre[]"
+                           maxlength="150"
+                           required
+                           placeholder="Nombre del invitado">
 
-                <label for="correo">Correo electrónico</label>
-                <input id="correo" name="correo[]"
-                       type="email" maxlength="255" required
-                       placeholder="correo@ejemplo.com">
-            </div>
+                    <label for="correo">Correo electrónico</label>
+                    <input id="correo"
+                           name="correo[]"
+                           type="email"
+                           maxlength="255"
+                           required
+                           placeholder="correo@ejemplo.com">
+                </div>
 
-            <button class="guest-submit" type="submit">
-                Agregar invitado
-            </button>
-        </form>
-    </section>
+                <button class="guest-submit" type="submit">
+                    Agregar invitado
+                </button>
+            </form>
+        </section>
     {% endif %}
 
-    {% if evento_cerrado %}<p class="notice">Evento cerrado: consulta de invitados y respuestas.</p>{% endif %}
+    {% if evento_cerrado %}
+        <p class="notice">
+            Evento cerrado: consulta de invitados y respuestas.
+        </p>
+    {% endif %}
+
     <section class="modules-section">
         <h2>Lista de invitados</h2>
 
         {% if invitaciones %}
             <div class="guest-list">
                 {% for invitacion in invitaciones %}
-                <article class="guest-row">
-                    <div>
-                        <strong>{{ invitacion.nombre }}</strong>
-                        <p>{{ invitacion.correo }}</p>
-                        <div class="guest-link">
-                            <label>Enlace personal de invitación</label>
+                    <article class="guest-row">
+                        <div>
+                            <strong>{{ invitacion.nombre }}</strong>
+                            <p>{{ invitacion.correo }}</p>
 
-                            <input
-                                type="text"
-                                readonly
-                                aria-label="Enlace de invitación de {{ invitacion.nombre }}"
-                                value="{{ url_for('ver_invitacion_evento', token=invitacion.token, _external=True) }}"
-                                onclick="this.select()"
-                            >
+                            <div class="guest-link">
+                                <label>
+                                    Enlace personal de invitación
+                                </label>
 
-                            <a class="event-action"
-                            href="{{ url_for('ver_invitacion_evento', token=invitacion.token) }}"
-                            target="_blank"
-                            rel="noopener noreferrer">
-                                Ver como invitado ↗
-                            </a>
+                                <input
+                                    type="text"
+                                    readonly
+                                    aria-label="Enlace de invitación de {{ invitacion.nombre }}"
+                                    value="{{ url_for('ver_invitacion_evento', token=invitacion.token, _external=True) }}"
+                                    onclick="this.select()">
+
+                                <a class="event-action"
+                                   href="{{ url_for('ver_invitacion_evento', token=invitacion.token) }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    Ver como invitado ↗
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <span class="event-status">
-                        {{ invitacion.estado | replace('_', ' ') | title }}
-                    </span>
-                </article>
+
+                        <span class="event-status">
+                            {{ invitacion.estado | replace('_', ' ') | title }}
+                        </span>
+                    </article>
                 {% endfor %}
             </div>
         {% else %}
