@@ -51,3 +51,54 @@ def test_metricas_no_exponen_tokens_de_invitacion():
     assert token not in contenido
     assert "/invitacion/<token>" in respuesta.get_json()["http_requests_by_path"]
     assert "/api/v1/invitaciones/<token>" in respuesta.get_json()["http_requests_by_path"]
+
+def test_metrics_sin_autorizacion_devuelve_401():
+    cliente = app.test_client()
+
+    respuesta = cliente.get("/metrics")
+
+    assert respuesta.status_code == 401
+    assert respuesta.get_json() == {"error": "No autorizado"}
+
+
+def test_metrics_token_incorrecto_devuelve_401():
+    cliente = app.test_client()
+
+    respuesta = cliente.get(
+        "/metrics",
+        headers={"Authorization": "Bearer token-incorrecto"},
+    )
+
+    assert respuesta.status_code == 401
+    assert respuesta.get_json() == {"error": "No autorizado"}
+
+
+def test_metrics_esquema_incorrecto_devuelve_401():
+    cliente = app.test_client()
+
+    respuesta = cliente.get(
+        "/metrics",
+        headers={
+            "Authorization": "Basic token-local-para-pruebas-2026"
+        },
+    )
+
+    assert respuesta.status_code == 401
+    assert respuesta.get_json() == {"error": "No autorizado"}
+
+
+def test_metrics_sin_secreto_configurado_devuelve_503(monkeypatch):
+    monkeypatch.delenv("ENAGENDA_METRICS_TOKEN", raising=False)
+    cliente = app.test_client()
+
+    respuesta = cliente.get(
+        "/metrics",
+        headers={
+            "Authorization": "Bearer token-local-para-pruebas-2026"
+        },
+    )
+
+    assert respuesta.status_code == 503
+    assert respuesta.get_json() == {
+        "error": "Métricas no configuradas"
+    }

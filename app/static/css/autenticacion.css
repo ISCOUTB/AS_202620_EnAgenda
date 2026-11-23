@@ -1,3 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;500;600;700&display=swap");
+
+/* Variables */
+
+:root {
+    --navy: #071c2c;
+    --navy-light: #12324d;
+    --navy-hover: #214a69;
+    --champagne: #c7aa94;
+    --champagne-light: #f2e3d6;
+    --text: #f8f3ed;
+    --muted: #c4cdd4;
+    --border: #53606a;
+    --focus: #dfc0a5;
+
+    --font-body: "Segoe UI", Arial, sans-serif;
+    --font-heading: "Playfair Display", Georgia, serif;
+    --font-monogram: "Great Vibes", cursive;
+}
+
+/* Base */
 
 * {
     box-sizing: border-box;
@@ -5,132 +26,216 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #f4efff, #e8e5ff);
-    color: #30244b;
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
 }
 
+button,
+input {
+    font: inherit;
+}
+
+/* Estructura */
+
 .auth-page {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 32px 20px;
+    background:
+        radial-gradient(
+            ellipse at top,
+            #1b3b52 0%,
+            #0b2335 45%,
+            #051420 100%
+        );
 }
 
 .auth-card {
     width: 100%;
-    max-width: 440px;
-    padding: 36px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 12px 40px rgba(65, 43, 110, 0.12);
+    max-width: 460px;
+    padding: 40px 36px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: #081d2d;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
 }
 
+/* Marca */
+
 .brand {
-    text-align: center;
     margin-bottom: 30px;
+    text-align: center;
 }
 
 .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 54px;
-    height: 54px;
-    margin: 0 auto 12px;
-    border-radius: 15px;
-    background: #7555d9;
-    color: white;
-    font-size: 28px;
-    font-weight: bold;
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 18px;
+    padding: 6px 5px 0 0;
+    border: 1px solid var(--champagne);
+    border-radius: 50%;
+    background: transparent;
+    color: #e7ceba;
+    font-family: var(--font-monogram);
+    font-size: 52px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
 }
 
 .brand h1 {
     margin: 0;
-    color: #6545c1;
+    color: var(--champagne-light);
+    font-family: var(--font-heading);
+    font-size: clamp(34px, 8vw, 46px);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.035em;
 }
 
-.brand p,
-.description {
-    color: #776e89;
-    font-size: 14px;
+.brand p {
+    margin: 9px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
 }
+
+/* Titulos */
 
 .auth-card h2 {
+    margin: 0 0 12px;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-size: clamp(27px, 6vw, 34px);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
     text-align: center;
-    margin-bottom: 8px;
 }
 
 .description {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 14px;
     text-align: center;
-    margin-bottom: 26px;
 }
 
+/* Formulario */
+
 .field {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .field label {
     display: block;
-    margin-bottom: 7px;
+    margin-bottom: 8px;
+    color: #e8dfd7;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .field input {
     width: 100%;
+    min-height: 48px;
     padding: 12px 14px;
-    border: 1px solid #d8d1e8;
+    border: 1px solid #9d8572;
     border-radius: 10px;
-    font-size: 15px;
+    background: #061725;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.field input::placeholder {
+    color: #b4bec6;
+    opacity: 1;
 }
 
 .field input:focus {
-    outline: 2px solid #b9a7f0;
-    border-color: #7555d9;
+    border-color: var(--focus);
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
 }
+
+/* Acciones */
 
 button {
     width: 100%;
-    margin-top: 8px;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: #7555d9;
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
+    min-height: 48px;
+    margin-top: 10px;
+    padding: 13px 18px;
+    border: 1px solid var(--champagne);
+    border-radius: 999px;
+    background: var(--navy-light);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background 160ms ease;
 }
 
 button:hover {
-    background: #6040bd;
+    background: var(--navy-hover);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+button:focus-visible,
+.auth-link a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 4px;
 }
 
 .auth-link {
-    margin-top: 24px;
-    text-align: center;
+    margin-top: 26px;
+    color: var(--muted);
     font-size: 14px;
+    text-align: center;
 }
 
 .auth-link a {
-    color: #6545c1;
-    font-weight: bold;
-    text-decoration: none;
+    color: #f0cdb0;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
+
+.auth-link a:hover {
+    color: #ffffff;
+}
+
+/* Mensajes */
 
 .error {
-    margin-bottom: 18px;
-    padding: 12px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border: 1px solid #dfb4b4;
     border-radius: 10px;
     background: #fff0f0;
-    color: #a62d39;
+    color: #842737;
     font-size: 14px;
+    overflow-wrap: anywhere;
 }
 
+/* Adaptacion movil */
+
 @media (max-width: 480px) {
+    .auth-page {
+        padding: 20px 14px;
+    }
+
     .auth-card {
-        padding: 24px;
+        padding: 30px 22px;
+        border-radius: 20px;
     }
 }

@@ -85,7 +85,11 @@
                     Organiza los preparativos y controla
                     las actividades pendientes.
                 </p>
-                <span class="module-pending">Próximamente</span>
+                <a
+                    class="event-action"
+                    href="{{ url_for('tareas_evento', evento_id=evento.id) }}">
+                    Gestionar tareas →
+                </a>
             </article>
 
             <article class="module-card">

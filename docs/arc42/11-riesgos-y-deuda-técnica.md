@@ -118,3 +118,61 @@ Pendientes transversales: análisis y Quality Gate públicos de SonarCloud;
 restauración y trazabilidad histórica de ADR-0003 Render/Dokploy sin reutilizar
 números; escaneo redactado del historial completo por credenciales; evidencia de
 contribución real de los integrantes. Este paquete no afirma haberlos completado.
+
+## 11.7 Revisión de fallos parciales — 23-Nov-2026
+
+### Alcance y evidencia
+
+La integración productiva prevista sigue el recorrido navegador → Flask →
+servicios de aplicación → SQLAlchemy → PostgreSQL. El proveedor de envío del
+taller es simulado y no forma parte de este recorrido.
+
+Se ejecutaron conjuntamente 35 pruebas de aplicación y prototipo, con resultado
+satisfactorio. La evidencia está en
+[pruebas integradas](../evidencias/pruebas-integradas.txt).
+Esto no demuestra disponibilidad pública, tolerancia a fallos de red ni
+concurrencia real entre procesos PostgreSQL.
+
+### Modos de fallo y mitigaciones
+
+| Modo | Efecto esperado o riesgo | Mitigación y estado | Verificación y pendiente |
+|---|---|---|---|
+| PostgreSQL no responde | Las operaciones que requieren datos persistentes no pueden completarse. No se debe presentar una escritura fallida como guardada. | Las transacciones delimitan las escrituras. Pendiente comprobar límites de espera, manejo de errores y respuesta visible al usuario ante indisponibilidad real. | Las pruebas de rollback no sustituyen una caída de PostgreSQL. Pendiente ensayo controlado de indisponibilidad y recuperación. |
+| PostgreSQL responde tarde o hay contención | La solicitud puede quedar esperando; si el cliente pierde la respuesta, puede desconocer si hubo commit. | Consultar el estado antes de repetir operaciones ambiguas. No se afirma disponer de timeouts específicos ni reintentos automáticos verificados. | Pendiente medir esperas, revisar configuración y probar contención real en PostgreSQL. |
+| Una solicitud HTTP llega dos veces | Puede repetirse un alta o un cambio de estado. | Repetir la misma respuesta de asistencia conserva el estado final. El alta repetida de un correo se rechaza en el servicio de invitados. Crear eventos y tareas no tiene clave de idempotencia y puede producir duplicados. | Las pruebas S12 cubren respuesta repetida y duplicados de invitados. Pendiente deduplicación de altas de eventos y tareas. |
+| Flask deja de responder | La interfaz y los servicios del monolito quedan indisponibles; la persistencia no implica disponibilidad de la aplicación. | Los datos del flujo PostgreSQL están separados del proceso Flask. Se comprobó manualmente conservación de tareas tras reiniciar la aplicación. | No se ha probado caída abrupta durante commit, recuperación automática ni restauración de un respaldo. El flujo heredado en memoria no comparte esta garantía. |
+| El proveedor simulado falla o recibe duplicados | El trabajo puede reintentarse, ignorarse como duplicado o terminar en fallidos dentro del experimento. | El prototipo implementa deduplicación, proveedor simulado idempotente y tres intentos con backoff virtual. No está integrado al MVP. | Once pruebas del taller aprobadas. No acreditan proveedor real, durabilidad ni recuperación después de aceptación remota. |
+
+### Idempotencia y transacciones
+
+La idempotencia se analiza por operación, no como propiedad global del sistema.
+
+- Responder una invitación con el mismo estado conserva el resultado final.
+- Repetir un alta de invitado con el mismo correo no debe crear otra fila.
+- Crear eventos y tareas puede generar registros distintos si se repite la
+  solicitud; queda como deuda de deduplicación.
+- El simulador conserva message_id y envio_id para controlar duplicados,
+  pero su registro se pierde al finalizar el proceso.
+- No se implementa una saga: el flujo persistente actual utiliza transacciones
+  locales, sin una secuencia de escrituras coordinadas entre servicios
+  independientes. El experimento no acredita atomicidad BD/publicación.
+
+Véanse las garantías y límites en
+[conceptos transversales](08-conceptos-transversales.md).
+
+### Decisión de extracción
+
+Se propone mantener Invitaciones dentro del monolito y conservar el simulador
+fuera del flujo productivo. La comparación, consecuencias y condiciones de
+revisión están en el
+[ADR-0005](../adr/0005-mantener-invitaciones-en-monolito.md).
+
+### Deuda actualizada
+
+Tareas ya cuenta con persistencia PostgreSQL y verificación funcional manual.
+Las 35 pruebas registradas no incluyen pruebas automatizadas específicas de
+Tareas ni certifican toda la seguridad del sistema.
+
+Continúan pendientes: fallos reales de infraestructura, concurrencia en
+PostgreSQL, restauración de respaldos, medición de rendimiento, comprobación
+del despliegue público y consolidación del flujo heredado en memoria.
