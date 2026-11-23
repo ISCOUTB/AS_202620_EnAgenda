@@ -50,6 +50,11 @@ from flask import abort
 from datetime import datetime, timezone
 from sqlalchemy import select
 
+from src.tareas.aplicacion.gestionar_tareas import (
+    consultar_tareas,
+    modificar_tareas,
+)
+
 app = Flask(__name__)
 
 # SECRET_KEY se configura en .env, nunca se publica en Git.
@@ -785,6 +790,73 @@ def api_responder_invitacion(token):
         }
     ), 200
 
+@app.route(
+    "/eventos/<int:evento_id>/tareas",
+    methods=["GET", "POST"],
+)
+@login_requerido
+def tareas_evento(evento_id):
+    usuario_id = session["usuario_id"]
+    mensaje_error = None
+    codigo_estado = 200
+
+    if request.method == "POST":
+        accion = request.form.get("accion", "")
+
+        try:
+            tarea_id = None
+
+            if accion in {"editar", "estado", "eliminar"}:
+                identificador = request.form.get("tarea_id", "")
+
+                if (
+                    not identificador.isascii()
+                    or not identificador.isdecimal()
+                    or len(identificador) > 10
+                ):
+                    raise ValueError("Identificador de tarea no válido.")
+
+                tarea_id = int(identificador)
+
+                if not 1 <= tarea_id <= 2147483647:
+                    raise ValueError("Identificador de tarea no válido.")
+
+            modificar_tareas(
+                evento_id=evento_id,
+                usuario_id=usuario_id,
+                accion=accion,
+                tarea_id=tarea_id,
+                titulo=request.form.get("titulo", ""),
+                descripcion=request.form.get("descripcion", ""),
+                estado=request.form.get("estado", ""),
+            )
+
+            return redirect(
+                url_for("tareas_evento", evento_id=evento_id),
+                code=303,
+            )
+
+        except LookupError:
+            abort(404)
+
+        except ValueError as error:
+            mensaje_error = str(error)
+            codigo_estado = 400
+
+    try:
+        datos = consultar_tareas(evento_id, usuario_id)
+    except LookupError:
+        abort(404)
+
+    return (
+        render_template(
+            "tareas_evento.html",
+            **datos,
+            mensaje_error=mensaje_error,
+        ),
+        codigo_estado,
+        {"Cache-Control": "no-store"},
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
