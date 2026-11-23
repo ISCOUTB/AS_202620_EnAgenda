@@ -1,0 +1,11 @@
+{% extends 'cuenta_base.html' %}
+{% block titulo %}Historial{% endblock %}
+{% block contenido %}
+<header class="page-header"><div><p class="eyebrow">TUS CELEBRACIONES</p><h1>Historial</h1><p class="subtitle">Eventos cerrados, con sus recuerdos y respuestas en un solo lugar.</p></div></header>
+<form method="get" class="history-filter"><label for="estado">Mostrar</label><select id="estado" name="estado">
+{% for valor, etiqueta in [('todos','Todos'),('finalizado','Finalizados'),('cancelado','Cancelados')] %}<option value="{{ valor }}" {% if filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>{% endfor %}
+</select><button class="secondary-button">Filtrar</button></form>
+<p>{{ eventos|length }} evento(s) en esta vista</p>
+<div class="events-grid">{% for evento in eventos %}<article class="event-card"><span class="event-status">{{ evento.estado|title }}</span><h2>{{ evento.titulo }}</h2><p>{{ evento.fecha_evento.strftime('%d/%m/%Y %I:%M %p') }}</p><p>{{ evento.ubicacion }}</p><a class="event-action" href="{{ url_for('detalle_evento', evento_id=evento.id) }}">Consultar evento →</a></article>
+{% else %}<div class="empty-state"><h2>Aún no hay eventos en esta vista</h2><p>Cuando finalices o canceles un evento, podrás consultarlo aquí.</p><a class="event-action" href="{{ url_for('panel') }}">Ir a mis eventos →</a></div>{% endfor %}</div>
+{% endblock %}

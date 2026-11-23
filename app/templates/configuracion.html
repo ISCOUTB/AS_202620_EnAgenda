@@ -1,0 +1,23 @@
+{% extends 'cuenta_base.html' %}
+{% block titulo %}Configuración{% endblock %}
+{% block contenido %}
+<header class="page-header"><div><p class="eyebrow">TU CUENTA</p><h1>Configuración</h1><p class="subtitle">Actualiza tus datos y dale tu color a EnAgenda.</p></div></header>
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+<div class="settings-grid">
+<section class="detail-info"><h2>Datos personales</h2><p>Confirma tu contraseña actual para guardar tus datos.</p>
+<form method="post" class="settings-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="accion" value="perfil">
+<label for="nombre">Nombre</label><input id="nombre" name="nombre" value="{{ usuario.nombre }}" required maxlength="150" autocomplete="name">
+<label for="correo">Correo electrónico</label><input id="correo" name="correo" value="{{ usuario.correo }}" type="email" required maxlength="255" autocomplete="email">
+<label for="clave-perfil">Contraseña actual</label><input id="clave-perfil" name="contrasena_actual" type="password" required maxlength="128" autocomplete="current-password">
+<button class="guest-submit">Guardar datos</button></form></section>
+<section class="detail-info"><h2>Seguridad</h2><p>Utiliza entre 8 y 128 caracteres para tu nueva contraseña.</p>
+<form method="post" class="settings-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="accion" value="contrasena">
+<label for="clave-actual">Contraseña actual</label><input id="clave-actual" name="contrasena_actual" type="password" required maxlength="128" autocomplete="current-password">
+<label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" name="nueva_contrasena" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+<label for="clave-confirmar">Repetir nueva contraseña</label><input id="clave-confirmar" name="confirmar_contrasena" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+<button class="guest-submit">Cambiar contraseña</button></form></section>
+<section class="detail-info"><h2>Apariencia</h2><p>El color se guarda en tu cuenta para tus pantallas de organización.</p>
+<form method="post" class="settings-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="accion" value="apariencia">
+<fieldset class="theme-options"><legend>Color de acento</legend>{% for valor, tema in temas_disponibles.items() %}<label class="theme-choice"><input type="radio" name="tema" value="{{ valor }}" {% if usuario.tema == valor %}checked{% endif %} required><span class="swatch" style="background: {{ tema[1] }}"></span>{{ tema[0] }}</label>{% endfor %}</fieldset>
+<button class="guest-submit">Guardar apariencia</button></form></section></div>
+{% endblock %}

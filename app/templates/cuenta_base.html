@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}{% endblock %} | EnAgenda</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/panel.css') }}">
+{% include '_tema.html' %}</head><body><div class="layout">
+<aside class="sidebar"><div class="brand"><div class="logo">E</div><div><h2>EnAgenda</h2><p>Organiza. Invita. Celebra.</p></div></div>
+<nav class="navigation" aria-label="Navegación principal">
+<a href="{{ url_for('panel') }}">Mis eventos</a>
+<a href="{{ url_for('historial') }}" {% if request.endpoint == 'historial' %}class="active" aria-current="page"{% endif %}>Historial</a>
+<a href="{{ url_for('configuracion') }}" {% if request.endpoint == 'configuracion' %}class="active" aria-current="page"{% endif %}>Configuración</a></nav>
+<form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout">Cerrar sesión</button></form></aside>
+<main class="main">{% include '_avisos.html' %}{% block contenido %}{% endblock %}</main></div></body></html>

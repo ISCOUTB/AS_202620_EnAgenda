@@ -55,3 +55,7 @@ class UsuarioModelo(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+
+    tema: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="violeta", server_default="violeta",
+    )

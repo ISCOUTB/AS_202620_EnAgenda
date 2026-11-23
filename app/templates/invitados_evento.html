@@ -7,6 +7,7 @@
     <title>Invitados | EnAgenda</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/panel.css') }}">
+{% include '_tema.html' %}
 </head>
 <body>
 <main class="main detail-page">
@@ -31,7 +32,7 @@
         </div>
     {% endif %}
 
-    {% if espacios_disponibles > 0 %}
+    {% if espacios_disponibles > 0 and not evento_cerrado %}
     <section class="detail-info">
         <h2>Agregar invitados</h2>
 
@@ -58,6 +59,7 @@
     </section>
     {% endif %}
 
+    {% if evento_cerrado %}<p class="notice">Evento cerrado: consulta de invitados y respuestas.</p>{% endif %}
     <section class="modules-section">
         <h2>Lista de invitados</h2>
 

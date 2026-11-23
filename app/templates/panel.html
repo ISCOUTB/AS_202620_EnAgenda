@@ -7,6 +7,7 @@
     <title>Mis eventos | EnAgenda</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/panel.css') }}">
+{% include '_tema.html' %}
 </head>
 <body>
 
@@ -25,8 +26,8 @@
             <a class="active" href="{{ url_for('panel') }}">
                 Mis eventos
             </a>
-            <span class="nav-disabled">Historial (próximamente)</span>
-            <span class="nav-disabled">Configuración (próximamente)</span>
+            <a href="{{ url_for('historial') }}">Historial</a>
+            <a href="{{ url_for('configuracion') }}">Configuración</a>
         </nav>
 
         <form method="POST" action="{{ url_for('logout') }}">

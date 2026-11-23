@@ -7,13 +7,15 @@
     <title>{{ evento.titulo }} | EnAgenda</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/panel.css') }}">
+{% include '_tema.html' %}
 </head>
 <body>
 
 <main class="main detail-page">
+{% include '_avisos.html' %}
 
-    <a class="back-link" href="{{ url_for('panel') }}">
-        ← Volver a mis eventos
+    <a class="back-link" href="{{ url_for('historial') if evento.estado in ('finalizado', 'cancelado') else url_for('panel') }}">
+        ← Volver a mis eventos / historial
     </a>
 
     <header class="detail-header">
@@ -109,6 +111,17 @@
         </div>
     </section>
 
+{% if evento.estado not in ('finalizado', 'cancelado') %}
+<section class="detail-info">
+    <h2>Cerrar evento</h2><p>Se moverá al historial y se cerrarán las respuestas. Los datos se conservan.</p>
+    <form method="post" action="{{ url_for('cerrar_evento_web', evento_id=evento.id) }}" class="close-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="confirmar-cierre"><input id="confirmar-cierre" type="checkbox" required> Entiendo que el evento quedará cerrado y no podré reabrirlo.</label>
+        <div><button class="guest-submit" name="estado" value="finalizado">Finalizar evento</button>
+        <button class="secondary-button" name="estado" value="cancelado">Cancelar evento</button></div>
+    </form>
+</section>
+{% else %}<p class="notice">Este evento está cerrado. Puedes consultar sus invitados y respuestas.</p>{% endif %}
 </main>
 
 </body>
