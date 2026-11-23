@@ -106,3 +106,25 @@ Calidad de EnAgenda
 | Entorno | Prueba de carga inicial con hasta 10 usuarios concurrentes |
 | Respuesta | El sistema procesa la operación y devuelve el resultado solicitado |
 | Medida | El percentil 95 de las respuestas de las operaciones medidas debe ser menor de 2 segundos |
+
+#### Evidencia parcial de EC-05 — 23-Nov-2026
+
+Se midió localmente el recorrido persistente de invitaciones:
+consultar, responder y verificar el estado mediante HTTP, con PostgreSQL
+y CSRF habilitado.
+
+La prueba ejecutó etapas de 1, 5 y 10 usuarios simulados, con 20 recorridos
+por usuario y etapa: 320 recorridos y 960 peticiones medidas, sin errores.
+
+Con diez usuarios, los p95 fueron:
+- Consultar: 46.737 ms.
+- Responder: 64.158 ms.
+- Verificar: 57.670 ms.
+- Recorrido completo: 160.372 ms.
+
+Las operaciones medidas cumplieron el objetivo de p95 menor que 2000 ms.
+El resultado no cubre la consulta del panel incluida en EC-05 ni certifica
+rendimiento del despliegue público, renderizado del navegador o carga sostenida.
+
+Método, ejecución reproducible, resultados y límites:
+[informe de rendimiento S14](../../experimentos/rendimiento/README.md).

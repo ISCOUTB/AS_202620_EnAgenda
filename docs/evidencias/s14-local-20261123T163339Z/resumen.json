@@ -1,0 +1,110 @@
+{
+  "inicio_utc": "2026-11-23T16:33:39.601922+00:00",
+  "fin_utc": "2026-11-23T16:33:50.060954+00:00",
+  "commit_declarado": "a460d9c98fd3fe6884b7bd0568014099cad831b6",
+  "entorno": "Docker Compose local; generador en contenedor separado; sin navegador ni estaticos",
+  "python_generador": "3.13.18",
+  "requests": "2.34.2",
+  "evento_id": 2,
+  "calentamiento": "10 recorridos excluidos",
+  "ciclos_por_usuario": 20,
+  "pausa_segundos": 0.1,
+  "modelo": "cerrado; sin tasa de llegada fija",
+  "p95": "rango mas cercano; incluye intentos fallidos; tiempos HTTP completos",
+  "alcance": "Un evento y diez invitados; modifica respuestas; no acredita produccion ni todo EC-05",
+  "resultados": [
+    {
+      "usuarios": 1,
+      "operaciones": {
+        "consultar": {
+          "muestras": 20,
+          "errores": 0,
+          "p95_ms": 13.609,
+          "max_ms": 14.508
+        },
+        "responder": {
+          "muestras": 20,
+          "errores": 0,
+          "p95_ms": 55.518,
+          "max_ms": 55.937
+        },
+        "verificar": {
+          "muestras": 20,
+          "errores": 0,
+          "p95_ms": 12.629,
+          "max_ms": 13.213
+        }
+      },
+      "recorrido": {
+        "muestras": 20,
+        "errores": 0,
+        "p95_ms": 76.786,
+        "max_ms": 78.2
+      },
+      "error_pct": 0.0,
+      "cumple_objetivo_operaciones": true
+    },
+    {
+      "usuarios": 5,
+      "operaciones": {
+        "consultar": {
+          "muestras": 100,
+          "errores": 0,
+          "p95_ms": 30.307,
+          "max_ms": 62.048
+        },
+        "responder": {
+          "muestras": 100,
+          "errores": 0,
+          "p95_ms": 49.8,
+          "max_ms": 92.903
+        },
+        "verificar": {
+          "muestras": 100,
+          "errores": 0,
+          "p95_ms": 35.986,
+          "max_ms": 50.282
+        }
+      },
+      "recorrido": {
+        "muestras": 100,
+        "errores": 0,
+        "p95_ms": 127.066,
+        "max_ms": 156.848
+      },
+      "error_pct": 0.0,
+      "cumple_objetivo_operaciones": true
+    },
+    {
+      "usuarios": 10,
+      "operaciones": {
+        "consultar": {
+          "muestras": 200,
+          "errores": 0,
+          "p95_ms": 46.737,
+          "max_ms": 57.677
+        },
+        "responder": {
+          "muestras": 200,
+          "errores": 0,
+          "p95_ms": 64.158,
+          "max_ms": 103.43
+        },
+        "verificar": {
+          "muestras": 200,
+          "errores": 0,
+          "p95_ms": 57.67,
+          "max_ms": 98.541
+        }
+      },
+      "recorrido": {
+        "muestras": 200,
+        "errores": 0,
+        "p95_ms": 160.372,
+        "max_ms": 211.751
+      },
+      "error_pct": 0.0,
+      "cumple_objetivo_operaciones": true
+    }
+  ]
+}

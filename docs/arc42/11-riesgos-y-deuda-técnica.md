@@ -84,17 +84,25 @@ respaldo, revisión y aplicación controlada de migraciones, comprobación
 posterior y recuperación. La automatización completa de ese procedimiento
 todavía no se acredita.
 
-### DT-04 — Pruebas y medición de rendimiento pendientes
+### DT-04 — Cobertura parcial de medición de rendimiento
 
-El requisito EC-05 establece un objetivo de rendimiento de menos de 2 segundos
-para el percentil 95 de las operaciones principales bajo una carga inicial de
-hasta 10 usuarios concurrentes.
+El 23-Nov-2026 se ejecutó una medición HTTP local del recorrido de
+invitaciones persistentes, con etapas de 1, 5 y 10 usuarios simulados.
 
-**Consecuencia:** el objetivo está definido, pero la medición depende de que
-exista una implementación suficientemente completa para realizar la prueba.
+Se completaron 320 recorridos y 960 peticiones medidas, sin errores.
+Con diez usuarios, el p95 del recorrido completo fue 160.372 ms y
+los p95 de las tres operaciones fueron inferiores a 2000 ms.
 
-**Plan:** ejecutar una prueba de carga cuando las operaciones principales estén
-implementadas y documentar los resultados obtenidos.
+Consecuencia: ya existe evidencia para el recorrido medido, pero no
+para todas las operaciones principales. No se midieron el panel,
+el despliegue público, el renderizado de navegador, consumo de recursos
+ni comportamiento sostenido de larga duración.
+
+Plan: conservar el script y las evidencias, ampliar la medición a las
+operaciones restantes y verificar el entorno público antes de extrapolar
+estos resultados.
+
+Véase el [informe S14](../../experimentos/rendimiento/README.md).
 
 ## 11.6 Priorización
 
@@ -197,9 +205,14 @@ El pull request #6 superó cuatro comprobaciones, incluido CI, taller y
 SonarCloud con Quality Gate aprobado. El nuevo workflow de auditoría de
 dependencias añadido en la rama de cierre aún debe ejecutarse y verificarse.
 
-Continúan pendientes: fallos reales de infraestructura, concurrencia en
-PostgreSQL, restauración de respaldos, medición de rendimiento, comprobación
-del despliegue público y consolidación del flujo heredado en memoria.
+Continúan pendientes: fallos reales de infraestructura, concurrencia real
+entre procesos de aplicación con PostgreSQL, restauración ensayada de
+respaldos, medición de operaciones no cubiertas y del despliegue público,
+y consolidación del flujo heredado en memoria.
+
+La medición local S14 aporta evidencia de solicitudes concurrentes al
+recorrido persistente con un worker sync; no demuestra ejecución paralela
+entre múltiples workers ni completa todos los escenarios de concurrencia.
 
 ## Seguridad — revisión del 23-Nov-2026
 
