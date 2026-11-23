@@ -159,11 +159,11 @@ def test_clave_invalida_conserva_hash(cuenta, nueva, confirmacion):
 def test_tema_por_cuenta_persistente(cuenta):
     cliente, fabrica = cuenta
     assert enviar(cliente, '/configuracion', {'accion': 'apariencia', 'tema': 'verde'}).status_code == 302
-    assert '--accent: #247451' in cliente.get('/panel').text
-    assert '--accent: #247451' in cliente.get('/eventos/1').text
+    assert '--accent: #104c3e' in cliente.get('/panel').text
+    assert '--accent: #104c3e' in cliente.get('/eventos/1').text
     with fabrica() as s:
         assert s.get(UsuarioModelo, 1).tema == 'verde'
-        assert s.get(UsuarioModelo, 2).tema == 'violeta'
+        assert s.get(UsuarioModelo, 2).tema == 'azul'
     assert enviar(cliente, '/configuracion', {'accion': 'apariencia', 'tema': '<script>'}).status_code == 400
 
 
@@ -195,7 +195,7 @@ def test_migracion_conserva_usuarios_existentes(tmp_path, monkeypatch):
         conexion.execute(text("INSERT INTO usuarios (nombre, correo, contrasena_hash, activo, fecha_registro) VALUES ('Existente', 'existente@example.com', 'hash-previo', 1, CURRENT_TIMESTAMP)"))
     command.upgrade(configuracion, 'head')
     with motor.connect() as conexion:
-        assert conexion.execute(text('SELECT nombre, tema FROM usuarios')).one() == ('Existente', 'violeta')
+        assert conexion.execute(text('SELECT nombre, tema FROM usuarios')).one() == ('Existente', 'azul')
     command.downgrade(configuracion, 'b303d9dbf5e5')
     assert 'tema' not in {c['name'] for c in inspect(motor).get_columns('usuarios')}
     with motor.connect() as conexion:

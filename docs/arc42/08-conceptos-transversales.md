@@ -134,6 +134,7 @@ sesiones. La preferencia `usuarios.tema` usa una lista cerrada de colores y una
 migración con valor predeterminado `violeta` para cuentas existentes. No se inyecta
 CSS libre desde formularios. Las páginas privadas usan `Cache-Control: no-store`.
 
+<<<<<<< HEAD
 ## Seguridad y privacidad — revisión del 23-Nov-2026
 
 El modelo de amenazas identifica activos, actores, límites de confianza,
@@ -152,3 +153,39 @@ configuración efectiva de cookies del servidor siguen pendientes de revisión.
 La auditoría local posterior al cambio a pytest 9.0.3 no encontró avisos
 conocidos en el inventario examinado. La ejecución del nuevo workflow de
 auditoría aún debe verificarse.
+=======
+
+## Operación de Tareas, Agenda, Presupuesto y paletas — 23-Nov-2026
+
+Los módulos se administran desde el detalle de un evento. Cada petición se acota
+al propietario y a una cuenta activa. Toda escritura usa CSRF y una transacción
+que bloquea primero la fila del evento. El cierre del evento usa esa misma fila,
+por lo que las nuevas operaciones de estos módulos deben respetar ese bloqueo.
+Los eventos finalizados/cancelados son de solo consulta, incluidas sus tareas.
+
+Agenda guarda inicio y fin en UTC y presenta fechas en `America/Bogota`. Valida
+fin posterior al inicio y ausencia de superposición dentro del mismo evento:
+`inicio_existente < fin_nuevo` y `fin_existente > inicio_nuevo`. La actividad editada
+se excluye del contraste. Actividades contiguas son válidas y pueden abarcar varios
+días. No se implementan recordatorios ni envío de notificaciones.
+
+Presupuesto guarda un límite por evento y gastos con concepto, categoría, notas,
+valor y estado de pago. Los montos usan Numeric(12,2)/Decimal. El total registrado
+incluye pagos pendientes y realizados; saldo = límite - total registrado. Superar
+el límite muestra advertencia, sin impedir registrar el costo real. Marcar pagado
+es un registro manual, no una transacción bancaria. Eliminar un gasto no reembolsa.
+
+La migración `e62b903a47f1` continúa `7d297b6ad7b3`; agrega tablas de agenda,
+presupuestos y gastos, establece azul como predeterminado y migra paletas antiguas.
+Mantiene los datos de tareas, usuarios, eventos e invitaciones existentes. Azul y
+verde se conservan, rosa pasa a vino, violeta pasa a azul. Las paletas se validan
+contra una lista cerrada; sus variables CSS provienen exclusivamente del servidor.
+Una cookie de presentación recuerda el último tema elegido en el navegador para
+login/registro tras cerrar sesión. La preferencia autenticada viene de PostgreSQL.
+La cookie no contiene credenciales ni decide permisos.
+
+Pruebas con SQLite acreditan reglas de negocio y aislamiento de datos, no bloqueo
+concurrente real en PostgreSQL. No hay auditoría de cambios de gastos ni claves de
+idempotencia para su creación; las redirecciones tras POST evitan repetición por
+recarga normal, no garantizan exactamente una vez ante reintentos de red.
+>>>>>>> 88de7c8 (Completa módulos del evento, temas e invitación pública azul)

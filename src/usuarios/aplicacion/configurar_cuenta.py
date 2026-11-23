@@ -6,12 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from src.compartido.infraestructura.base_datos import SessionLocal
 from src.usuarios.infraestructura.modelo_usuario import UsuarioModelo
 
-TEMAS = {
-    "violeta": ("Violeta", "#7052c8", "#eee9fa"),
-    "rosa": ("Rosa", "#a63775", "#fbeaf3"),
-    "verde": ("Verde", "#247451", "#e5f4eb"),
-    "azul": ("Azul", "#2a65ae", "#e8f0fb"),
-}
+from src.usuarios.aplicacion.temas import TEMAS
 
 
 def configurar_cuenta(usuario_id, datos):

@@ -1,0 +1,34 @@
+/* La tipografía y la estructura del diseño existente se conservan. */
+.sidebar { background: var(--navy); color: var(--sidebar-text); border-color: var(--border); }
+.sidebar .brand h2, .sidebar .logo { color: var(--champagne); }
+.sidebar .brand p, .sidebar .nav-disabled { color: var(--sidebar-muted); }
+.sidebar .navigation a { color: var(--sidebar-text); }
+.sidebar .navigation a:hover, .sidebar .navigation a.active { background: var(--sidebar-active); color: var(--sidebar-text); border-color: var(--champagne); }
+.sidebar .logout { color: var(--sidebar-text); border-color: var(--champagne); }
+.sidebar .logout:hover { background: var(--sidebar-active); }
+.summary { background: linear-gradient(120deg, var(--summary-start), var(--summary-end)); border-color: var(--champagne); color: var(--summary-text); }
+.summary p, .summary span { color: var(--summary-text); }
+.summary h2, .summary-icon { color: var(--champagne); }
+.eyebrow { color: var(--accent); }
+.event-status, .module-icon { color: var(--accent); background: var(--accent-light); border-color: var(--border); }
+.guest-submit, .create-button { background: var(--accent); color: var(--on-accent); border-color: var(--champagne); }
+.guest-submit:hover, .create-button:hover { background: var(--accent-hover); }
+.event-action { color: var(--accent); }
+.secondary-button { color: var(--text); background: var(--surface); border-color: var(--border); }
+.secondary-button:hover { background: var(--accent-light); }
+.guest-fields input, .guest-fields textarea, .guest-link input { background: var(--surface); color: var(--text); border-color: var(--border); }
+.auth-page { background: radial-gradient(ellipse at top, var(--accent-hover), var(--auth-bg) 75%); }
+.auth-card { background: var(--auth-card); border-color: var(--champagne); }
+.auth-card .brand h1, .auth-card .logo { color: var(--champagne); }
+.auth-card h2, .auth-card .field label { color: var(--auth-text); }
+.auth-card .description, .auth-card .brand p, .auth-card .auth-link { color: var(--auth-muted); }
+.auth-card .field input { background: var(--auth-input); color: var(--auth-text); border-color: var(--champagne); }
+.auth-card .field input::placeholder { color: var(--auth-muted); }
+.auth-card button { background: var(--accent); color: var(--on-accent); }
+.auth-card button:hover { background: var(--accent-hover); }
+.auth-card .auth-link a { color: var(--champagne); }
+.theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.theme-choice { background: var(--surface); padding: 16px; border: 1px solid var(--border); border-radius: 12px; min-height: 64px; }
+.theme-choice:has(input:checked) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-choice input { accent-color: var(--accent); }
+.theme-choice .swatch { width: 28px; height: 28px; flex-shrink: 0; border: 1px solid var(--border); }

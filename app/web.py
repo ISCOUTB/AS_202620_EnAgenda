@@ -51,6 +51,7 @@ from flask import abort
 from datetime import datetime, timezone
 from sqlalchemy import select
 from src.usuarios.aplicacion.configurar_cuenta import configurar_cuenta, TEMAS
+from src.usuarios.aplicacion.temas import normalizar_tema, variables_tema
 from src.eventos.aplicacion.cerrar_evento import cerrar_evento
 
 
@@ -455,14 +456,14 @@ def ver_invitacion_evento(token):
 
 @app.context_processor
 def apariencia_cuenta():
-    tema = "violeta"
+    tema = normalizar_tema(request.cookies.get("enagenda_tema", "azul"))
     if session.get("usuario_id"):
         with SessionLocal() as sesion_db:
             usuario = sesion_db.get(UsuarioModelo, session["usuario_id"])
             if usuario is not None:
                 tema = usuario.tema
-    etiqueta, acento, suave = TEMAS.get(tema, TEMAS["violeta"])
-    return {"tema_acento": acento, "tema_suave": suave, "temas_disponibles": TEMAS}
+    tema = normalizar_tema(tema)
+    return {"tema_actual": tema, "tema_variables": variables_tema(tema), "temas_disponibles": TEMAS}
 
 
 @app.get("/historial")
@@ -509,10 +510,14 @@ def configuracion():
             error = str(excepcion)
         else:
             flash("Cambios guardados correctamente.", "exito")
-            return redirect(url_for("configuracion"))
+            respuesta = redirect(url_for("configuracion"))
+            if request.form.get("accion") == "apariencia":
+                respuesta.set_cookie("enagenda_tema", request.form["tema"], max_age=31536000,
+                    httponly=True, secure=app.config["SESSION_COOKIE_SECURE"], samesite="Lax")
+            return respuesta
     with SessionLocal() as sesion_db:
         usuario = sesion_db.get(UsuarioModelo, session["usuario_id"])
-        datos = {"nombre": usuario.nombre, "correo": usuario.correo, "tema": usuario.tema}
+        datos = {"nombre": usuario.nombre, "correo": usuario.correo, "tema": normalizar_tema(usuario.tema)}
     return render_template("configuracion.html", usuario=datos, error=error), (400 if error else 200)
 
 
@@ -938,6 +943,17 @@ def tareas_evento(evento_id):
         codigo_estado,
         {"Cache-Control": "no-store"},
     )
+
+from app.modulos_evento import registrar_modulos_evento
+registrar_modulos_evento(app, login_requerido)
+
+
+@app.template_filter("cop")
+def formato_cop(valor):
+    if valor is None:
+        return "Sin definir"
+    return "$ " + format(valor, ",.2f").replace(",", "_").replace(".", ",").replace("_", ".") + " COP"
+
 
 if __name__ == "__main__":
     app.run(debug=True)

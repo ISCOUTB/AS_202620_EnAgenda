@@ -1,1 +1,2 @@
-<style>:root { --accent: {{ tema_acento }}; --accent-light: {{ tema_suave }}; }</style>
+<style>:root { {% for nombre, valor in tema_variables.items() %}--{{ nombre }}: {{ valor }}; {% endfor %} }</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/temas.css') }}">

@@ -57,5 +57,5 @@ class UsuarioModelo(Base):
     )
 
     tema: Mapped[str] = mapped_column(
-        String(16), nullable=False, default="violeta", server_default="violeta",
+        String(16), nullable=False, default="azul", server_default="azul",
     )

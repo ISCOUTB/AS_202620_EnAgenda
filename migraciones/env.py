@@ -9,6 +9,8 @@ from src.usuarios.infraestructura.modelo_usuario import Base
 from src.eventos.infraestructura.modelo_evento import EventoModelo
 from src.invitaciones.infraestructura.modelo_invitacion import InvitacionModelo
 from src.tareas.infraestructura.modelo_tarea import TareaModelo
+from src.agenda.infraestructura.modelo_actividad import ActividadModelo
+from src.presupuesto.infraestructura.modelos_presupuesto import PresupuestoModelo, GastoModelo
 
 config = context.config
 

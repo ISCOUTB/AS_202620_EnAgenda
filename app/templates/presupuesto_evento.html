@@ -1,0 +1,21 @@
+{% extends 'modulo_evento_base.html' %}
+{% from '_formulario_modulo.html' import ocultos, campos_gasto with context %}
+{% block titulo %}Presupuesto{% endblock %}
+{% block modulo %}
+<p>Registra los gastos de tu evento en pesos colombianos. Marca un gasto como pagado cuando completes su pago.</p>
+<section class="budget-overview" aria-label="Resumen de presupuesto">
+<div class="summary"><p>Límite del presupuesto</p><h2>{{ limite|cop }}</h2>{% if limite is not none %}<label for="uso-presupuesto">Uso del presupuesto</label><progress id="uso-presupuesto" max="100" value="{{ porcentaje }}">{{ porcentaje }}%</progress>{% endif %}</div>
+<div class="stat-card"><p>Gastos registrados</p><strong>{{ total|cop }}</strong><span>{{ gastos|length }} gasto(s)</span></div>
+<div class="stat-card"><p>Pagado</p><strong>{{ pagado|cop }}</strong><span>Por pagar: {{ pendiente|cop }}</span></div>
+<div class="stat-card"><p>Disponible</p><strong>{{ saldo|cop }}</strong><span>Después de todos los gastos registrados</span></div></section>
+{% if saldo is not none and saldo < 0 %}<p class="notice error" role="status">Los gastos superan tu presupuesto en {{ (-saldo)|cop }}. Revisa los valores o ajusta el límite.</p>{% endif %}
+{% if categorias %}<details class="detail-info"><summary>Ver totales por categoría</summary><dl class="category-totals">{% for categoria, valor in categorias %}<div><dt>{{ categoria }}</dt><dd>{{ valor|cop }}</dd></div>{% endfor %}</dl></details>{% endif %}
+<div class="workspace-grid">
+{% if not evento.cerrado %}<div class="module-editor"><section class="detail-info"><h2>Definir presupuesto</h2><form method="post" class="settings-form">{{ ocultos('limite') }}<label for="limite">Límite en COP</label><input id="limite" name="limite" type="number" min="0" max="9999999999.99" step="0.01" value="{{ limite if limite is not none else '' }}" required><button class="guest-submit">Guardar límite</button></form></section>
+<section class="detail-info"><h2>Nuevo gasto</h2><form method="post" class="settings-form">{{ ocultos('crear') }}{{ campos_gasto('nuevo', request.form if request.form.get('accion') == 'crear' else {}) }}<button class="guest-submit">Registrar gasto</button></form></section></div>{% endif %}
+<section class="module-records" aria-label="Gastos del evento">{% for g in gastos %}<article class="detail-info"><div class="record-top"><span class="event-status">{{ 'Pagado' if g.pagado else 'Pendiente de pago' }}</span><strong>{{ g.valor|cop }}</strong></div><h2>{{ g.concepto }}</h2><p class="subtitle">{{ g.categoria }}</p>{% if g.notas %}<p class="preserve-lines">{{ g.notas }}</p>{% endif %}
+{% if not evento.cerrado %}<form method="post">{{ ocultos('pago','gasto_id',g.id) }}<input type="hidden" name="estado" value="{{ 'pendiente' if g.pagado else 'pagado' }}"><button class="secondary-button">{{ 'Marcar pendiente' if g.pagado else 'Marcar pagado' }}</button></form>
+<details class="record-details"><summary>Editar gasto</summary><form method="post" class="settings-form">{{ ocultos('editar','gasto_id',g.id) }}{{ campos_gasto('gasto-'~g.id,g) }}<button class="guest-submit">Guardar cambios</button></form></details>
+<details class="record-details"><summary>Eliminar gasto</summary><p>Se eliminará del registro y de los totales. Esto no representa un reembolso.</p><form method="post">{{ ocultos('eliminar','gasto_id',g.id) }}<button class="secondary-button">Confirmar eliminación</button></form></details>{% endif %}</article>
+{% else %}<div class="empty-state"><h2>Aún no hay gastos</h2><p>Registra los costos para conocer cuánto has comprometido y cuánto queda por pagar.</p></div>{% endfor %}</section></div>
+{% endblock %}

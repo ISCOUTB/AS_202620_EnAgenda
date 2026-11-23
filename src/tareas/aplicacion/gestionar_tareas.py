@@ -1,34 +1,14 @@
 from sqlalchemy import select
 
 from src.compartido.infraestructura.base_datos import SessionLocal
-from src.eventos.infraestructura.modelo_evento import EventoModelo
 from src.tareas.infraestructura.modelo_tarea import TareaModelo
-from src.usuarios.infraestructura.modelo_usuario import UsuarioModelo
+
+
+from src.compartido.aplicacion.acceso_evento import obtener_evento
 
 
 def _consultar_evento(sesion, evento_id, usuario_id, bloquear=False):
-    consulta = (
-        select(EventoModelo)
-        .join(
-            UsuarioModelo,
-            UsuarioModelo.id == EventoModelo.usuario_id,
-        )
-        .where(
-            EventoModelo.id == evento_id,
-            EventoModelo.usuario_id == usuario_id,
-            UsuarioModelo.activo.is_(True),
-        )
-    )
-
-    if bloquear:
-        consulta = consulta.with_for_update(of=EventoModelo)
-
-    evento = sesion.scalar(consulta)
-
-    if evento is None:
-        raise LookupError("Evento no encontrado.")
-
-    return evento
+    return obtener_evento(sesion, evento_id, usuario_id, escritura=bloquear)
 
 
 def _validar_contenido(titulo, descripcion):
@@ -76,6 +56,8 @@ def consultar_tareas(evento_id, usuario_id):
             "evento": {
                 "id": evento.id,
                 "titulo": evento.titulo,
+                "estado": evento.estado,
+                "cerrado": evento.estado in ("finalizado", "cancelado"),
             },
             "tareas": tareas,
             "total": len(tareas),

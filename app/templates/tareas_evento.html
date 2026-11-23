@@ -10,6 +10,7 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/panel.css') }}"
     >
+{% include '_tema.html' %}
 </head>
 <body>
     <main class="main detail-page">
@@ -42,6 +43,7 @@
             </div>
         </section>
 
+        {% if not evento.cerrado %}
         <section class="detail-info" aria-labelledby="nueva-tarea">
             <h2 id="nueva-tarea">Nueva tarea</h2>
 
@@ -84,6 +86,8 @@
             </form>
         </section>
 
+        {% endif %}
+        {% if evento.cerrado %}<p class="notice">Evento cerrado. Las tareas se conservan en modo consulta.</p>{% endif %}
         <section class="modules-section" aria-labelledby="lista-tareas">
             <h2 id="lista-tareas">Tus tareas</h2>
 
@@ -106,6 +110,7 @@
                             </p>
                         {% endif %}
 
+                        {% if not evento.cerrado %}
                         <form
                             method="post"
                             action="{{ url_for('tareas_evento', evento_id=evento.id) }}"
@@ -229,6 +234,7 @@
                                 </button>
                             </form>
                         </details>
+                        {% endif %}
                     </article>
                 {% else %}
                     <div class="empty-state">

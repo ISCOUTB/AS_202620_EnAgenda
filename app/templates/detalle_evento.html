@@ -99,7 +99,7 @@
                     Planifica los horarios y las
                     actividades de tu evento.
                 </p>
-                <span class="module-pending">Próximamente</span>
+                <a class="event-action" href="{{ url_for('agenda_evento', evento_id=evento.id) }}">Gestionar agenda →</a>
             </article>
 
             <article class="module-card">
@@ -109,7 +109,7 @@
                     Registra gastos y organiza el
                     dinero destinado a tu celebración.
                 </p>
-                <span class="module-pending">Próximamente</span>
+                <a class="event-action" href="{{ url_for('presupuesto_evento', evento_id=evento.id) }}">Gestionar presupuesto →</a>
             </article>
 
         </div>

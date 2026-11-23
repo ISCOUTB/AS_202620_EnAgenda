@@ -1,0 +1,10 @@
+{% extends 'cuenta_base.html' %}
+{% block contenido %}
+<a class="back-link" href="{{ url_for('detalle_evento', evento_id=evento.id) }}">← Volver a {{ evento.titulo }}</a>
+<header class="detail-header"><p class="eyebrow">ORGANIZACIÓN DEL EVENTO</p><h1>{{ self.titulo() }}</h1><p class="subtitle">{{ evento.titulo }}</p><span class="event-status">{{ evento.estado|replace('_', ' ')|title }}</span></header>
+<nav class="module-tabs" aria-label="Secciones del evento">
+{% for endpoint, etiqueta in [('invitados_evento','Invitados'),('tareas_evento','Tareas'),('agenda_evento','Agenda'),('presupuesto_evento','Presupuesto')] %}<a href="{{ url_for(endpoint, evento_id=evento.id) }}" {% if request.endpoint == endpoint %}class="active" aria-current="page"{% endif %}>{{ etiqueta }}</a>{% endfor %}</nav>
+{% if mensaje_error %}<p class="notice error" role="alert">{{ mensaje_error }}</p>{% endif %}
+{% if evento.cerrado %}<p class="notice">Este evento está cerrado. Puedes consultar sus datos; ya no se admiten cambios.</p>{% endif %}
+{% block modulo %}{% endblock %}
+{% endblock %}

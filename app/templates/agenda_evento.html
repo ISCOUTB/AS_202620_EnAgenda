@@ -1,0 +1,14 @@
+{% extends 'modulo_evento_base.html' %}
+{% from '_formulario_modulo.html' import ocultos, campos_actividad with context %}
+{% block titulo %}Agenda{% endblock %}
+{% block modulo %}
+<div class="module-intro"><p>Organiza el orden de tu celebración. Los horarios se muestran en hora de Cartagena y no pueden cruzarse.</p><span>{{ actividades|length }} actividad(es)</span></div>
+<div class="workspace-grid">
+{% if not evento.cerrado %}<section class="detail-info module-editor"><h2>Nueva actividad</h2><form method="post" class="settings-form">{{ ocultos('crear') }}{{ campos_actividad('nueva', request.form if request.form.get('accion') == 'crear' else {}, fecha_sugerida) }}<button class="guest-submit">Agregar actividad</button></form></section>{% endif %}
+<section class="module-records" aria-label="Actividades programadas">
+{% for a in actividades %}<article class="detail-info timeline-card"><div class="record-top"><span class="event-status">{{ a.inicio.strftime('%d/%m/%Y') }}</span><strong>{{ a.inicio.strftime('%I:%M %p') }} – {{ a.fin.strftime('%d/%m %I:%M %p') if a.fin.date() != a.inicio.date() else a.fin.strftime('%I:%M %p') }}</strong></div><h2>{{ a.titulo }}</h2>
+{% if a.responsable %}<p><strong>Responsable:</strong> {{ a.responsable }}</p>{% endif %}{% if a.descripcion %}<p class="preserve-lines">{{ a.descripcion }}</p>{% endif %}
+{% if not evento.cerrado %}<details class="record-details"><summary>Editar actividad</summary><form method="post" class="settings-form">{{ ocultos('editar','actividad_id',a.id) }}{{ campos_actividad('editar-'~a.id, a, fecha_sugerida) }}<button class="guest-submit">Guardar cambios</button></form></details>
+<details class="record-details"><summary>Eliminar actividad</summary><p>Esta actividad se eliminará de la agenda.</p><form method="post">{{ ocultos('eliminar','actividad_id',a.id) }}<button class="secondary-button">Confirmar eliminación</button></form></details>{% endif %}</article>
+{% else %}<div class="empty-state"><h2>Tu agenda empieza aquí</h2><p>Agrega las actividades y sus horarios para definir el recorrido del evento.</p></div>{% endfor %}</section></div>
+{% endblock %}

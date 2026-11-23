@@ -1,0 +1,20 @@
+{% macro ocultos(accion, campo='', valor='') %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="accion" value="{{ accion }}">
+{% if campo %}<input type="hidden" name="{{ campo }}" value="{{ valor }}">{% endif %}
+{% endmacro %}
+
+{% macro campos_actividad(prefijo, a, fecha) %}
+<label for="{{ prefijo }}-titulo">Actividad</label><input id="{{ prefijo }}-titulo" name="titulo" maxlength="150" value="{{ a.get('titulo','') }}" required placeholder="Ej. Recepción de invitados">
+<div class="field-pair"><div><label for="{{ prefijo }}-inicio">Inicio · hora de Cartagena</label><input id="{{ prefijo }}-inicio" type="datetime-local" name="inicio" value="{{ a.inicio.strftime('%Y-%m-%dT%H:%M') if a.get('id') else a.get('inicio', fecha+'T09:00') }}" required></div>
+<div><label for="{{ prefijo }}-fin">Fin · hora de Cartagena</label><input id="{{ prefijo }}-fin" type="datetime-local" name="fin" value="{{ a.fin.strftime('%Y-%m-%dT%H:%M') if a.get('id') else a.get('fin', fecha+'T10:00') }}" required></div></div>
+<label for="{{ prefijo }}-responsable">Responsable (opcional)</label><input id="{{ prefijo }}-responsable" name="responsable" maxlength="150" value="{{ a.get('responsable') or '' }}">
+<label for="{{ prefijo }}-descripcion">Detalles (opcional)</label><textarea id="{{ prefijo }}-descripcion" name="descripcion" maxlength="2000" rows="3">{{ a.get('descripcion') or '' }}</textarea>
+{% endmacro %}
+
+{% macro campos_gasto(prefijo, g) %}
+<label for="{{ prefijo }}-concepto">Concepto</label><input id="{{ prefijo }}-concepto" name="concepto" maxlength="150" value="{{ g.get('concepto','') }}" required placeholder="Ej. Reserva del lugar">
+<div class="field-pair"><div><label for="{{ prefijo }}-categoria">Categoría</label><input id="{{ prefijo }}-categoria" name="categoria" maxlength="80" value="{{ g.get('categoria','') }}" placeholder="Lugar, comida, decoración…" required></div>
+<div><label for="{{ prefijo }}-valor">Valor en COP</label><input id="{{ prefijo }}-valor" type="number" name="valor" min="0.01" max="9999999999.99" step="0.01" value="{{ g.get('valor','') }}" required></div></div>
+<label for="{{ prefijo }}-notas">Notas (opcional)</label><textarea id="{{ prefijo }}-notas" name="notas" maxlength="2000" rows="3">{{ g.get('notas') or '' }}</textarea>
+{% endmacro %}

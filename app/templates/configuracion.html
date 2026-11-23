@@ -16,8 +16,8 @@
 <label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" name="nueva_contrasena" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
 <label for="clave-confirmar">Repetir nueva contraseña</label><input id="clave-confirmar" name="confirmar_contrasena" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
 <button class="guest-submit">Cambiar contraseña</button></form></section>
-<section class="detail-info"><h2>Apariencia</h2><p>El color se guarda en tu cuenta para tus pantallas de organización.</p>
+<section class="detail-info"><h2>Apariencia</h2><p>Azul clásico es el tema predeterminado. También puedes elegir terracota, vino o verde. Tu elección se conserva en la cuenta y en este navegador al cerrar sesión.</p>
 <form method="post" class="settings-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="accion" value="apariencia">
-<fieldset class="theme-options"><legend>Color de acento</legend>{% for valor, tema in temas_disponibles.items() %}<label class="theme-choice"><input type="radio" name="tema" value="{{ valor }}" {% if usuario.tema == valor %}checked{% endif %} required><span class="swatch" style="background: {{ tema[1] }}"></span>{{ tema[0] }}</label>{% endfor %}</fieldset>
+<fieldset class="theme-options"><legend>Tema de EnAgenda</legend>{% for valor, tema in temas_disponibles.items() %}<label class="theme-choice"><input type="radio" name="tema" value="{{ valor }}" {% if usuario.tema == valor %}checked{% endif %} required><span class="swatch" style="background: {{ tema[1] }}"></span>{{ tema[0] }}</label>{% endfor %}</fieldset>
 <button class="guest-submit">Guardar apariencia</button></form></section></div>
 {% endblock %}

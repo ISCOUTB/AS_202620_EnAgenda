@@ -1,10 +1,14 @@
 
 :root {
-    --accent: #7052c8;
-    --background: #f7f6fa;
-    --text: #23212b;
-    --muted: #777381;
-    --border: #e8e5ee;
+    --accent: #12324d;
+    --accent-hover: #1c4564;
+    --accent-light: #e8eef3;
+    --navy: #071c2c;
+    --champagne: #b99a88;
+    --background: #f5f6f8;
+    --text: #172937;
+    --muted: #626d76;
+    --border: #dfe3e7;
 }
 
 * {
@@ -31,7 +35,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 12px 35px rgba(35, 25, 60, 0.05);
+    box-shadow: 0 12px 35px rgba(7, 28, 44, 0.08);
 }
 
 .invitation-brand {
@@ -73,7 +77,7 @@ h1 {
 }
 
 .event-information {
-    background: #faf9fd;
+    background: var(--accent-light);
     padding: 22px;
     border-radius: 14px;
     margin: 24px 0;
@@ -117,7 +121,7 @@ h1 {
 
 .answer-option:has(input:checked) {
     border-color: var(--accent);
-    background: #f4efff;
+    background: var(--accent-light);
 }
 
 input[type="radio"] {
@@ -138,13 +142,13 @@ button {
 }
 
 button:hover {
-    background: #5c40ac;
+    background: var(--accent-hover);
 }
 
 .notice {
     border-radius: 10px;
     padding: 13px;
-    background: #f1f0f3;
+    background: #edf1f4;
     font-size: 13px;
     margin: 16px 0;
 }
@@ -172,4 +176,32 @@ footer {
     .invitation-card {
         padding: 22px;
     }
+}
+
+/* Invitación pública: paleta fija, independiente de la cuenta y cookies. */
+.invitation-brand {
+    background: var(--navy);
+    color: #f8f3ed;
+    border-bottom: 1px solid var(--champagne);
+    margin: -30px -30px 0;
+    padding: 24px 30px;
+    border-radius: 19px 19px 0 0;
+}
+.brand-logo {
+    background: transparent;
+    border: 1px solid var(--champagne);
+    color: #ead3c2;
+    border-radius: 50%;
+}
+.current-status strong { color: var(--text); }
+button { font-family: inherit; border: 1px solid var(--champagne); }
+button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--champagne);
+    outline-offset: 3px;
+}
+.event-information h2, .event-information p, .info-item strong, h1 {
+    overflow-wrap: anywhere;
+}
+@media (max-width: 500px) {
+    .invitation-brand { margin: -22px -22px 0; padding: 22px; }
 }
